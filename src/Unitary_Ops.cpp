@@ -127,75 +127,10 @@ ArrayXc compute_ZZ_phase_mask(int nQ, int q1, int q2, Real theta) {
 }
 
 
-void apply_Hadamard_on_all_qubits(VectorXc& psi) {
-    /*
-    Apply Hadamard gate on each qubit of the state using butterfly networks.
-    Input:
-    psi: State vector
-    Output:
-    psi (modified in place)
-    */
-
-    const size_t N = psi.size();
-    Complex* psi_data = psi.data(); 
-
-    for (size_t len = 1; len < N; len <<= 1) {
-        for (size_t i = 0; i < N; i += 2 * len) {
-            for (size_t j = 0; j < len; ++j) {
-                
-                Complex& a = psi_data[i + j]; 
-                Complex& b = psi_data[i + j + len]; 
-                
-                Complex a_val = a;
-                Complex b_val = b;
-                a = (a_val + b_val) * SQRT2_INV;
-                b = (a_val - b_val) * SQRT2_INV;                
-            }
-        }
-    }
-}
-
-
-template <typename Derived>
-inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
-    const int N = M.rows();
-    const int cols = M.cols();
-
-    for (int c = 0; c < cols; ++c) {
-        auto* col_ptr = &M(0, c);  // pointer to start of column c
-
-        for (int len = 1; len < N; len <<= 1) {
-            for (int i = 0; i < N; i += 2 * len) {
-                auto* top_ptr = col_ptr + i;
-                auto* bot_ptr = top_ptr + len;
-
-                for (int j = 0; j < len; ++j) {
-                    auto tmp_top = top_ptr[j];
-                    auto tmp_bot = bot_ptr[j];
-             
-                    top_ptr[j] = (tmp_top + tmp_bot) * SQRT2_INV;
-                    bot_ptr[j] = (tmp_top - tmp_bot) * SQRT2_INV;
-                }
-
-
-            }
-        }
-    }
-}
 
 
 
-inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
 
-    const int data_dim    = 1 << d;
-    const int ancilla_dim = 1 << (d - 1);
-
-    // Map state as 2D matrix: [ancilla_index][data_index]
-    Eigen::Map<MatrixXc> psi_matrix(psi.data(), ancilla_dim, data_dim); //interpret ancilla as rows so that we apply the transform only there
-    
-    inplace_hadamard_on_rows(psi_matrix);
-    
-}
 
 
 
