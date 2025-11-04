@@ -11,11 +11,17 @@ using std::vector;
 
 
 std::tuple<VectorXc, unsigned short int> project_on_indices(const VectorXc& psi, const std::vector<size_t>& kept_indices) {
-    //Function to project on a particular subspace based on a measured outcome.
-    //psi: The full state vector before the measurement
-    //kept_indices: incides corresponding to a particular measurement outcome that we intend to project the state onto.
-    //Output:
-    //psi_f , encountered_zero_norm: the output state, and a flag 0/1 if we encountered zero norm.
+    /*
+    Function to project on a particular subspace based on a measured outcome.
+
+    Inputs:
+    psi: total state vector
+    kept_indices: indices corresponding to a particular measurement outcome that we intend to project the state onto.
+
+    Outputs:
+    psi_f: the output state
+    encountered_zero_norm: flag 0/1 if we encountered zero norm.
+    */
     
     const size_t dim = psi.size();
     VectorXc psi_f = VectorXc::Zero(dim);
@@ -43,9 +49,11 @@ std::vector<std::pair<int,int>> precompute_kept_index_map_for_ptrace_of_ancilla(
     /*
     Compute the indices we will keep in the state vector after tracing out the ancilla. The state vector is ordered as |psi,data, psi_ancilla>.
     Note: This also assumes that the ancilla qubits were reset! So this is only valid if the state vector was projected to the 0 outcome for all ancilla (or X gates were used to return the ancilla to 0).
-    Input:
+    
+    Inputs:
     n_anc: # of ancilla qubits
     n_data: # of data qubits
+
     Output:
     index_map: a vector of pairs where the 1st index is which entry we select from the full vector, and the 2nd index is the entry in the reduced vector.
     */
@@ -72,7 +80,8 @@ VectorXc discard_measured_qubits(const VectorXc& psi_full,
 
     /*
     Discard the qubits that were measured, given the measurement outcomes that they were already projected into. This is used for example, if we want to discard the ancilla qubits, and we haven't reset the ancilla.
-    Input:
+    
+    Inputs:
     psi_full: total state vector
     qubits_to_keep: vector of qubit indices to retain
     qubits_discarded: vector of qubit indices to remove
