@@ -9,11 +9,53 @@
 
 
 #include "PrecisionOfTypes.h"
-#include <xsimd/xsimd.hpp>
 
 
 using namespace Eigen;
 using std::vector;
+
+
+
+template <typename Derived>
+inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
+    const int N = M.rows();
+    const int cols = M.cols();
+
+    for (int c = 0; c < cols; ++c) {
+        auto* col_ptr = &M(0, c);  // pointer to start of column c
+
+        for (int len = 1; len < N; len <<= 1) {
+            for (int i = 0; i < N; i += 2 * len) {
+                auto* top_ptr = col_ptr + i;
+                auto* bot_ptr = top_ptr + len;
+
+                for (int j = 0; j < len; ++j) {
+                    auto tmp_top = top_ptr[j];
+                    auto tmp_bot = bot_ptr[j];
+             
+                    top_ptr[j] = (tmp_top + tmp_bot) * SQRT2_INV;
+                    bot_ptr[j] = (tmp_top - tmp_bot) * SQRT2_INV;
+                }
+
+
+            }
+        }
+    }
+}
+
+
+
+inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
+
+    const int data_dim    = 1 << d;
+    const int ancilla_dim = 1 << (d - 1);
+
+    // Map state as 2D matrix: [ancilla_index][data_index]
+    Eigen::Map<MatrixXc> psi_matrix(psi.data(), ancilla_dim, data_dim); //interpret ancilla as rows so that we apply the transform only there
+    
+    inplace_hadamard_on_rows(psi_matrix);
+    
+}
 
 
 std::vector<std::pair<size_t, size_t>> precompute_CNOT_swaps(int control, const std::vector<int>& targets, int nQ);
