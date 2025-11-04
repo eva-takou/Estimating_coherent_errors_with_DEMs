@@ -10,41 +10,6 @@ using std::vector;
 
 
 
-std::tuple<VectorXc, unsigned short int> project_on_indices(const VectorXc& psi, const std::vector<size_t>& kept_indices) {
-    /*
-    Function to project on a particular subspace based on a measured outcome.
-
-    Inputs:
-    psi: total state vector
-    kept_indices: indices corresponding to a particular measurement outcome that we intend to project the state onto.
-
-    Outputs:
-    psi_f: the output state
-    encountered_zero_norm: flag 0/1 if we encountered zero norm.
-    */
-    
-    const size_t dim = psi.size();
-    VectorXc psi_f = VectorXc::Zero(dim);
-    Real norm_sq = 0.0;
-
-    const Complex* psi_ptr = psi.data();
-    Complex* psi_f_ptr = psi_f.data();    
-
-    for (size_t idx : kept_indices) {
-        psi_f_ptr[idx] = psi_ptr[idx];
-        norm_sq += std::norm(psi_ptr[idx]);
-    }
-
-    if (norm_sq < 1e-28) {
-        return {psi_f, 1};
-    }
-
-    psi_f /= std::sqrt(norm_sq);
-    return {psi_f, 0};
-}
-
-
-
 std::vector<std::pair<int,int>> precompute_kept_index_map_for_ptrace_of_ancilla(int n_anc, int n_data){
     /*
     Compute the indices we will keep in the state vector after tracing out the ancilla. The state vector is ordered as |psi,data, psi_ancilla>.
