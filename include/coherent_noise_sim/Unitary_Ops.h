@@ -6,23 +6,31 @@
 #include <cassert>
 #include <utility>
 #include <cmath>
-
-
 #include "PrecisionOfTypes.h"
-
 
 using namespace Eigen;
 using std::vector;
 
 
+std::vector<std::pair<size_t, size_t>> precompute_CNOT_swaps(int control, const std::vector<int>& targets, int nQ);
+
+VectorXc precompute_Rz_phase_mask(int nQ, const std::vector<int>& qubits, const std::vector<Real>& thetas);
+
+VectorXc compute_ZZ_phase_mask(int nQ, int q1, int q2, Real theta);
+
+std::vector<std::pair<size_t, size_t>> precompute_Hadamard_flip_masks(const std::vector<int>& qubits, int nQ);
+
+
+
 
 template <typename Derived>
 inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
+
     const int N = M.rows();
     const int cols = M.cols();
 
     for (int c = 0; c < cols; ++c) {
-        auto* col_ptr = &M(0, c);  // pointer to start of column c
+        auto* col_ptr = &M(0, c);  
 
         for (int len = 1; len < N; len <<= 1) {
             for (int i = 0; i < N; i += 2 * len) {
@@ -44,7 +52,6 @@ inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
 }
 
 
-
 inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
 
     const int data_dim    = 1 << d;
@@ -58,13 +65,6 @@ inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
 }
 
 
-std::vector<std::pair<size_t, size_t>> precompute_CNOT_swaps(int control, const std::vector<int>& targets, int nQ);
-
-VectorXc precompute_Rz_phase_mask(int nQ, const std::vector<int>& qubits, const std::vector<Real>& thetas);
-
-VectorXc compute_ZZ_phase_mask(int nQ, int q1, int q2, Real theta);
-
-std::vector<std::pair<size_t, size_t>> precompute_Hadamard_flip_masks(const std::vector<int>& qubits, int nQ);
 
 
 inline void apply_CNOTs_from_precomputed_swaps(const std::vector<std::pair<size_t, size_t>>& swaps, VectorXc& psi){
@@ -80,7 +80,8 @@ inline void apply_CNOTs_from_precomputed_swaps(const std::vector<std::pair<size_
 
 inline void apply_Hadamard_on_all_qubits(VectorXc& psi) {
     /*
-    Apply Hadamard gate on each qubit of the state using butterfly networks.
+    Apply Hadamard gate on each qubit of the state using butterfly networks (Walsh-Hadamard transform, cost O(Nlog(N)) operations).
+    
     Input:
     psi: State vector
     Output:
@@ -107,11 +108,75 @@ inline void apply_Hadamard_on_all_qubits(VectorXc& psi) {
 }
 
 
+
+inline void apply_precomputed_ZZ_mask(VectorXc& psi, const ArrayXc& phase_mask) {
+    // const size_t N = psi.size();
+    // for (size_t i = 0; i < N; ++i) {
+    //     psi[i] *= phase_mask[i];
+    // }
+    psi.array() *= phase_mask; //.array()
+}
+
+inline void apply_precomputed_Rz_mask(VectorXc& psi, const ArrayXc& phase_mask) {
+    
+    // auto* p = psi.data();
+    // auto* m = phase_mask.data();
+    // const size_t N = psi.size();
+    // for (size_t i = 0; i < N; ++i) {
+    //     const Real re = p[i].real();
+    //     const Real im = p[i].imag();
+    //     const Real mr = m[i].real();
+    //     const Real mi = m[i].imag();
+    //     p[i].real(re * mr - im * mi);
+    //     p[i].imag(re * mi + im * mr);
+    // }    
+
+    psi.array() *= phase_mask;
+}
+
+
+
+
+inline void apply_X_on_qubits(VectorXc& psi, const std::vector<uint8_t>& outcome_bitstring, int offset, const Eigen::Index dim, int nQ) {
+    /*
+    Apply X gate on qubits to return from |1> -> |0> state, after their measurement outcome (conditional reset).
+
+    Input:
+    psi: the full state vector
+    outcome_bitstring: the outcomes of the qubits that were measured
+    offset: from which qubit we start (e.g., if we measure the ancilla we have an offset=d since the first d qubits are the data qubits)
+    dim: dimension 2^n
+    nQ: total # of qubits
+    */
+    
+    Eigen::Index flip_mask = 0;
+
+    for (int i = 0; i < static_cast<int>(outcome_bitstring.size()); ++i) {
+        if (outcome_bitstring[i]) {
+            int q = offset + i;
+            flip_mask |= (1ULL << (nQ - 1 - q)); //MSB ordering
+        }
+    }
+
+    if (flip_mask == 0) return; 
+
+    
+    for (Eigen::Index j = 0; j < dim; ++j) {
+        Eigen::Index j_flip = j ^ flip_mask;
+        if (j < j_flip) {
+            std::swap(psi[j], psi[j_flip]);
+        }
+    }
+}
+
+
 //TODO: CLEANUP THE CODE
+
+
 
 inline void apply_Rz_on_qubits_inplace_old(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
 
-    // using cplx = std::complex<double>;
+    
     const Eigen::Index dim = psi.size();
     const int n = static_cast<int>(std::log2(dim));
     const Complex I(Real(0), Real(1));
@@ -150,7 +215,6 @@ inline void apply_Rz_on_qubits_inplace_old(VectorXc& psi, const std::vector<int>
 
 inline void apply_Rz_on_qubits_inplace_old_V2(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
     
-    // using cplx = std::complex<double>;
 
     const Eigen::Index dim = psi.size();
     const int nQ = static_cast<int>(std::log2(dim));
@@ -198,91 +262,6 @@ inline void apply_Rz_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qu
         psi[i] *= phase;
     }
 }
-
-
-
-
-// inline void apply_precomputed_Rz_mask(VectorXcd& psi, const ArrayXcd& phase_mask) {
-//     // psi.array() *= phase_mask.array();
-
-//     Eigen::Map<Eigen::ArrayXcd>(psi.data(), psi.size()) *= phase_mask; //This will avoid creating a temporary array for both sides. However requires defining phase_mask as ArrayXcd //TODO if 
-    
-// }
-
-//This is element-wise multiplication
-// inline void apply_precomputed_ZZ_mask(VectorXcd& psi, const ArrayXcd& phase_mask) {
-//     // psi.array() *= phase_mask.array();
-//     // Eigen::Map<Eigen::ArrayXcd>(psi.data(), psi.size()) *= phase_mask.array();
-//     Eigen::Map<Eigen::ArrayXcd>(psi.data(), psi.size()) *= phase_mask;
-// }
-
-
-//TODO: FIX THIS.
-
-inline void apply_precomputed_ZZ_mask(VectorXc& psi, const ArrayXc& phase_mask) {
-    const size_t N = psi.size();
-    for (size_t i = 0; i < N; ++i) {
-        psi[i] *= phase_mask[i];
-    }
-}
-
-inline void apply_precomputed_Rz_mask(VectorXc& psi, const ArrayXc& phase_mask) {
-    
-    auto* p = psi.data();
-    auto* m = phase_mask.data();
-    const size_t N = psi.size();
-    for (size_t i = 0; i < N; ++i) {
-        const Real re = p[i].real();
-        const Real im = p[i].imag();
-        const Real mr = m[i].real();
-        const Real mi = m[i].imag();
-        p[i].real(re * mr - im * mi);
-        p[i].imag(re * mi + im * mr);
-    }    
-}
-
-
-
-
-// inline void apply_precomputed_ZZ_mask(VectorXcd& psi, const ArrayXcd& phase_mask) {
-    
-//     auto* p = psi.data();
-//     auto* m = phase_mask.data();
-//     const size_t N = psi.size();
-//     for (size_t i = 0; i < N; ++i) {
-//         p[i] *= m[i];
-//     }
-// }
-
-
-//For X gates
-inline void apply_X_on_qubits(VectorXc& psi, const std::vector<uint8_t>& outcome_bitstring, int offset, const Eigen::Index dim, int nQ) {
-
-    // Compute the combined X flip mask
-    Eigen::Index flip_mask = 0;
-
-    for (int i = 0; i < static_cast<int>(outcome_bitstring.size()); ++i) {
-        if (outcome_bitstring[i]) {
-            int q = offset + i;
-            flip_mask |= (1ULL << (nQ - 1 - q));
-        }
-    }
-
-    if (flip_mask == 0) return; // nothing to do
-
-    // Use bitmask symmetry to avoid redundant swaps
-    for (Eigen::Index j = 0; j < dim; ++j) {
-        Eigen::Index j_flip = j ^ flip_mask;
-        if (j < j_flip) {
-            std::swap(psi[j], psi[j_flip]);
-        }
-    }
-}
-
-
-
-
-
 
 // void apply_Hadamard_on_qubit_in_place(VectorXc& psi, int q);
 
