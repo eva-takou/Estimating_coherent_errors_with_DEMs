@@ -1,14 +1,12 @@
 #include <Eigen/Dense>
 #include <complex>
-
 #include "PrecisionOfTypes.h"
 
 using namespace Eigen;
 
-
 VectorXc Ket0(int nQ){
 
-    int dim = 1 << nQ;  // equivalent to 2^nQ
+    int dim = 1 << nQ;  
     VectorXc psi = VectorXc::Zero(dim); //All zeros vector
     
     psi[0] = Complex(Real(1.0), Real(0.0));
