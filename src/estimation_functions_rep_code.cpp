@@ -233,9 +233,10 @@ inline Real redefine_lowest_order_prob(const std::vector<int>& lower_order_key, 
 }
 
 
-//TODO VERIFY THIS...
 inline Real multiply_exclusion_factor(const std::vector<int>& lower_order_key, Real term_to_correct, const ProbDict& four_point_probs){
-    //Multiply by 1/(1-2*p_{ijkl}) correction factor (used for 3pnt probs)
+    /*
+    Multiply by 1/(1-2*p_{ijkl}) correction factor to the 3-point probability term.
+    */
 
     Real updated_term = term_to_correct;
 
@@ -252,6 +253,7 @@ inline Real multiply_exclusion_factor(const std::vector<int>& lower_order_key, R
 
 
 
+// Higher-order correlations are calculated based on the formulas of Ref https://arxiv.org/pdf/2502.17722.
 
 inline Real get_four_point_prob(const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic>& eigen_batch, const std::vector<Real>& vi_mean, int nsims, int n_stabs, int rds,
                                 int anc1, int anc2, int anc3, int anc4, int rd1, int rd2, int rd3, int rd4){
@@ -359,7 +361,7 @@ inline Real get_three_point_prob(const Eigen::Array<bool, Eigen::Dynamic, Eigen:
                                  int anc1, int anc2, int anc3, int rd1, int rd2, int rd3, ProbDict four_point_probs){
     
 
-    // Real EXTRA
+    
 
     int indx1 = anc1 + n_stabs * rd1;
     int indx2 = anc2 + n_stabs * rd2;
@@ -404,13 +406,13 @@ inline Real get_three_point_prob(const Eigen::Array<bool, Eigen::Dynamic, Eigen:
     
     Real NUMER = 1.0;
     NUMER *= (1.0 - 2.0 * v1) * (1.0 - 2.0 * v2) * (1.0 - 2.0 * v3);
-    NUMER *= (1.0 - 2.0 * (v1 + v2 + v3) + 4.0 * (v1v2 + v1v3 + v2v3) - 8.0 * v1v2v3) ; //OK
+    NUMER *= (1.0 - 2.0 * (v1 + v2 + v3) + 4.0 * (v1v2 + v1v3 + v2v3) - 8.0 * v1v2v3) ; 
 
     //Extra is 1/(1-2*p_{ijkl}) where l \not in {ijk} 
     
 
     std::vector<int> lower_order_key = {indx1,indx2,indx3};
-    Real term_to_correct = 0.5 * std::sqrt(std::sqrt(NUMER/DENOM)); //std::pow(NUMER/DENOM, 1.0/4.0);
+    Real term_to_correct = 0.5 * std::sqrt(std::sqrt(NUMER/DENOM)); 
     
 
     term_to_correct = multiply_exclusion_factor(lower_order_key, term_to_correct, four_point_probs);
@@ -827,24 +829,15 @@ std::vector<Real> estimate_bd_edges(const Eigen::Array<bool, Eigen::Dynamic, Eig
                  
         }
 
-        // std::cout << "numer of boundary 1:" << VI-0.5 << "\n";
-        // std::cout << "denom of boundary 1:" << DENOM << "\n";
-        
-
         Real temp = 0.5 + (VI-0.5)/DENOM;
-
-        // lower_order_key = {indx1};
-        // temp = redefine_lowest_order_prob(lower_order_key, temp, four_point_probs);
-        // temp = redefine_lowest_order_prob(lower_order_key, temp, three_point_probs);
 
         if (temp<0){
             std::cout << "FOUND NEGATIVE for boundary 1!\n";
-            // std::cout << "Value:" << temp << "\n";
             temp=0.0;
         }
 
         if (temp>0.5){
-            temp = 0.5; //randomized
+            temp = 0.5;
         }
 
 
@@ -924,17 +917,13 @@ std::vector<Real> estimate_bd_edges(const Eigen::Array<bool, Eigen::Dynamic, Eig
         }
 
         Real temp = 0.5 + (VI-0.5)/DENOM;
-        // std::vector<int> lower_order_key = {indx1};
-        // temp = redefine_lowest_order_prob(lower_order_key, temp, four_point_probs);
-        // temp = redefine_lowest_order_prob(lower_order_key, temp, three_point_probs);
 
         if (temp<0){
             std::cout << "FOUND NEGATIVE for boundary 2!\n";
-            // std::cout << "Value:" << temp << "\n";
             temp=0;}
 
         if (temp>0.5){
-            temp = 0.5; //randomized
+            temp = 0.5; 
         }        
 
 
