@@ -1,23 +1,29 @@
-// #include "call_to_pymatching.h"
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <iostream>
 #include "PrecisionOfTypes.h"
-#include <cmath>  // for std::log
+#include <cmath> 
 namespace py = pybind11;
 
-//Decode w/ the default all =1 weights
-std::vector<std::vector<int>> decode_batch_with_pymatching(const std::vector<std::vector<int>>& H,
-                                                               const std::vector<std::vector<uint8_t>>& batch,
-                                                               int repetitions){
-   
-    // Ensure Python is initialized
-    // if (!Py_IsInitialized()) {
-    //     Py_Initialize();
-    // }
 
-    py::gil_scoped_acquire gil;
+std::vector<std::vector<int>> decode_batch_with_pymatching(const std::vector<std::vector<int>>& H, const std::vector<std::vector<uint8_t>>& batch, int repetitions){
+
+                                                                
+    /*
+    Decode with default weights =1 (up to phenomenological) given the parity check matrix H.
+
+    Input:
+    H: parity check matrix
+    batch: the batch of detection events
+    repetitions: number of rounds 
+
+    Output:
+    the corrections per qubit.
+    */                                                              
+
+
+    // py::gil_scoped_acquire gil;
 
 
     // Static Matching object (imported once)
@@ -75,7 +81,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph(const std::vec
                                                                   const std::vector<std::vector<uint8_t>>& batch,int rds, 
                                                                   int include_stab_reconstruction){
    
-    '''
+    /*
     Create a DEM based on the estimated weights. This has been used for the repetition code DEM.
 
     Inputs:
@@ -89,7 +95,8 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph(const std::vec
     
     Output:
     The qubit corrections
-    '''                                                                    
+    */
+
     if (include_stab_reconstruction==1){
         rds+=1;
     }                                           
