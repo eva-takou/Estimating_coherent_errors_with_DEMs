@@ -38,7 +38,7 @@ inline std::vector<size_t> build_kept_indices(int n_total, const std::vector<int
     Output:
     kept: a vector of the kept indices
     */
-    
+
     const int n_anc = anc_idx.size();
     const int n_data = n_total - n_anc;
     const size_t n_kept = 1ULL << n_data;
@@ -198,7 +198,7 @@ inline std::vector<uint8_t> measure_all_ancilla_first_rd(int nQ,int n_anc,const 
                                                                const std::vector<Real>& cumulative, VectorXc& psi_buffer){
     
     /*
-    Measure all the ancilla qubits in the first QEC round. This is more efficient thatn the previous function, since the cumulative distribution is fixed at the start of the QEC rounds.
+    Measure all the ancilla qubits in the first QEC round. This is more efficient than the previous function, since the cumulative distribution is fixed at the start of the QEC rounds.
 
     Input:
     nQ: total # of qubits
