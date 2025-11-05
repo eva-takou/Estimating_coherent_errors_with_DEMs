@@ -2,7 +2,7 @@
 #include <Eigen/Core>
 #include <complex>
 
-using Real     = double; //We could also change to float
+using Real     = double; 
 using Complex  = std::complex<Real>;
 
 
