@@ -189,12 +189,20 @@ bool has_overlap(const std::vector<int>& a, const std::vector<int>& b) {
 }
 
 inline Real redefine_lowest_order_prob(const std::vector<int>& lower_order_key, Real lower_order_prob, const ProbDict& higher_order_probs){
-    //Do p_{ij} = (p_{ij}-p_{high})/(1-2p_{high}) 
-    //or p_{ii} = (p_{ii}-p_{high})/(1-2p_{high})
-    //lower_order_key is: std::vector<int> key={0,1}; as an example
-    //lower_order_prob is the value of the probability
-    //higher_order_probs: it's the dictionary with the higher order probabilities.
-    //This needs to be applied recursively where higher_order is n-th order and apply the correction to the n-1 order.
+    /*
+    Modify probability of edge by removing higher order contribution, via the equation: p = (p-p_{high})/(1-2p_{high}).
+    We can choose to remove contributions from all higher order events which overlap with the lower order event,
+    or we can just choose to remove selected events.
+    
+    Input:
+    lower_order_key: indices defining p_{ij} or p_{i} for boundary (e.g. p_{01} has the key={0,1})
+    lower_order_prob: input probability of an edge
+    higher_order_probs: dictionary with higher order probabilities
+    
+    Output:
+    updated_prob: modified probability after subtracting a higher order event.
+    */
+    
     
     Real updated_prob = lower_order_prob;
 
@@ -216,10 +224,6 @@ inline Real redefine_lowest_order_prob(const std::vector<int>& lower_order_key, 
 
         if (is_subset(lower_order_key,higher_order_key)){
         
-            // print_key(lower_order_key);
-            // print_key(higher_order_key);
-            // std::cout << "\n";
-            // std::cout << "REFINED bulk/boundary prob!\n";
             updated_prob = (updated_prob - higher_order_val)/(1.0-2.0*higher_order_val);
 
             if (updated_prob<0.0){
