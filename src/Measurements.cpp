@@ -37,11 +37,7 @@ std::vector<std::pair<int,int>> precompute_kept_index_map_for_ptrace_of_ancilla(
 }
 
 
-VectorXc discard_measured_qubits(const VectorXc& psi_full,
-                                   const std::vector<int>& qubits_to_keep,
-                                   const std::vector<int>& qubits_discarded,
-                                   const std::vector<uint8_t>& measured_values,
-                                   int n_total) {
+VectorXc discard_measured_qubits(const VectorXc& psi_full, const std::vector<int>& qubits_to_keep, const std::vector<int>& qubits_discarded, const std::vector<uint8_t>& measured_values, int n_total) {
 
     /*
     Discard the qubits that were measured, given the measurement outcomes that they were already projected into. This is used for example, if we want to discard the ancilla qubits, and we haven't reset the ancilla.
