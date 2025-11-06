@@ -1,6 +1,7 @@
 # Estimating coherent errors with Detector Error Models (DEMs)
 
-This is a c++ package to simulate circuit-level coherent errors for a repetition code memory. 
+This is a c++/python package to simulate, estimate and decode circuit-level coherent errors of a repetition code memory. This code is used to produce the results of the paper: "Estimating and decoding coherent errors of QEC experiments with detector error models" by E. Takou, and K. R. Brown.
+ADD LINK TO THIS
 
 
 # Prerequisites
@@ -47,6 +48,12 @@ cd build
 cmake -DPython_EXECUTABLE=$(which python3) ..
 make -j$(sysctl -n hw.ncpu)
 ```
+
+# Authors
+Evangelia Takou
+
+# License
+This project is licensed under..
 
 
 
