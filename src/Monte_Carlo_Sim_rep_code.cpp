@@ -31,10 +31,13 @@
 #include <Eigen/Core>
 #include <unsupported/Eigen/CXX11/Tensor>  // Needed for custom strides
 
-#include <Spectra/SymEigsSolver.h>
+
 #include <Eigen/Eigenvalues>
-#include <Spectra/MatOp/DenseSymMatProd.h>
-#include <Spectra/Util/SelectionRule.h>
+
+//Maybe unused?
+// #include <Spectra/SymEigsSolver.h>
+// #include <Spectra/MatOp/DenseSymMatProd.h>
+// #include <Spectra/Util/SelectionRule.h>
 
 #include <chrono>
 #include <tuple>
@@ -163,9 +166,7 @@ inline void reinitialize_ancilla(const VectorXc& psi_full, VectorXc& psi_full_ou
 }
 
 
-VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_t>>& all_swaps, 
-                                 const ArrayXc& phase_mask,
-                                 const ArrayXc& ZZ_mask) { 
+VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_t>>& all_swaps, const ArrayXc& phase_mask, const ArrayXc& ZZ_mask) { 
     /*
     Perform all unitary operations to prepare the state for the 1st QEC round (before measuring the ancilla qubits).
     
@@ -179,22 +180,18 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     psi: The state after the operations. 
     */
 
-    int nQ = d+(d-1);
+    int nQ       = d+(d-1);
     VectorXc psi = Ket0(nQ);
  
-    apply_Hadamard_on_all_qubits(psi); //Put in X-basis
+    apply_Hadamard_on_all_qubits(psi); //Put qubits in X-basis
     
-    //Apply noise e^{-i\theta_j Z_j}
-    apply_precomputed_Rz_mask(psi, phase_mask);
+    apply_precomputed_Rz_mask(psi, phase_mask); //Apply noise e^{-i\theta_j Z_j}
     
-                                        
-    apply_CNOTs_from_precomputed_swaps(all_swaps, psi);
+    apply_CNOTs_from_precomputed_swaps(all_swaps, psi); //Apply perfect CNOTs
 
-    //Apply e^{-i\theta_j ZZ} errors after CNOTs                                    
-    apply_precomputed_ZZ_mask(psi, ZZ_mask); 
+    apply_precomputed_ZZ_mask(psi, ZZ_mask);  //Apply e^{-i\theta_j ZZ} errors after CNOTs                                    
     
-    //Rotate ancilla before Z-basis measurement
-    apply_hadamards_on_ancilla_qubits(psi,d);
+    apply_hadamards_on_ancilla_qubits(psi,d); //Rotate ancilla before Z-basis measurement
 
     return psi;
 }
@@ -901,11 +898,11 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     return LER;
 }
 
-
+//THIS TO BE TESTED...
 Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_readout, bool Reset_ancilla){
     /*
-    Used only for coherent data errors, or coherent data errors + classical readout errors. This can only be used when the 
-    state remains in the codespace after the correction.
+    Used only for coherent data errors, or coherent data errors + classical readout errors. Calculates the logical infidelity
+    P_L = \sum_s P(s)sin^2(\theta_s), where \theta_s is the logical angle. Thus, it can only be used when the state remains in the codespace after the correction.
     
     Inputs:
     d: distance of repetition code
@@ -971,7 +968,6 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
     ArrayXc phase_mask;
     ArrayXc ZZ_mask;
     std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
-
  
     const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
     const Eigen::Index dim = psi0.size();    
@@ -1019,7 +1015,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
 
             if (Reset_ancilla==1){
 
-                apply_X_on_qubits(psi, outcome_this_rd,d, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
+                apply_X_on_qubits(psi, outcome_this_rd, d, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
             }
 
             // Store outcome
@@ -1028,7 +1024,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
 
-                reinitialize_ancilla(psi,psi,n_anc);
+                reinitialize_ancilla(psi, psi, n_anc);
                 // for (const auto& [i_full, i_reduced] : index_map)
                 //     psi_data[i_reduced] = psi[i_full];           
 
@@ -1123,7 +1119,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
         phi[sim]=std::arg(b) - std::arg(a);
 
         Real sin_theta = std::sin(thetaL );
-        LER += sin_theta * sin_theta;
+        LER += sin_theta * sin_theta;  
 
     }
 

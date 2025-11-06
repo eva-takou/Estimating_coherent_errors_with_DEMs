@@ -966,10 +966,14 @@ std::tuple<std::vector<Real>,std::vector<Real>,std::vector<Real>> estimate_edges
 
     std::vector<Real>  vi_mean = calculate_vi_mean(eigen_batch, nsims, n_stabs, rds);
 
+    ProbDict three_point_probs;
+    ProbDict four_point_probs; //Use  empty struct if we do not want to redefine the probs to include higher order events.
+
+
     if (include_higher_order){
 
-        ProbDict four_point_probs  = get_all_four_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds);
-        ProbDict three_point_probs = get_all_three_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds, four_point_probs);
+        four_point_probs  = get_all_four_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds);
+        three_point_probs = get_all_three_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds, four_point_probs);
 
         if (print_higher_order){
 
@@ -995,12 +999,6 @@ std::tuple<std::vector<Real>,std::vector<Real>,std::vector<Real>> estimate_edges
         }
 
     }
-    else{
-        ProbDict three_point_probs;
-        ProbDict four_point_probs; //Use  empty struct if we do not want to redefine the probs to include higher order events.
-
-    }
-
     
 
     std::vector<Real>  p_space = estimate_space_edges(eigen_batch, vi_mean, nsims, n_stabs, rds, four_point_probs,three_point_probs);
