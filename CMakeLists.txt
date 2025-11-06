@@ -37,15 +37,6 @@ add_subdirectory(external/pybind11)
 #    ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
 #)
 
-target_include_directories(sample_outcomes_rep_code
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
-)
-
-#${CMAKE_CURRENT_SOURCE_DIR}/external/xsimd/include
 
 #---- Python module -----
 
@@ -57,6 +48,18 @@ pybind11_add_module(sample_outcomes_rep_code
                     src/call_to_pymatching.cpp 
                     src/estimation_functions_rep_code.cpp 
                     src/Measurements.cpp )
+
+target_include_directories(sample_outcomes_rep_code
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
+)
+
+#${CMAKE_CURRENT_SOURCE_DIR}/external/xsimd/include
+
+
 
 
 
