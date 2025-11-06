@@ -51,10 +51,10 @@ PYBIND11_MODULE(sample_outcomes_rep_code, m) {
           py::arg("Reset_ancilla"),
           py::arg("include_higher_order"),
           py::arg("print_higher_order"),
-          "Run memory QEC sim and return LER from estimated DEM");      
+          "Run circuit-level memory QEC sim and return LER from estimated DEM");      
           
-    m.def("get_LER_from_uniform_DEM",
-          &get_LER_from_uniform_DEM,
+    m.def("get_LER_from_uniform_DEM_circuit_level",
+          &get_LER_from_uniform_DEM_circuit_level,
           py::arg("d"),
           py::arg("rds"),
           py::arg("ITERS"),
@@ -63,7 +63,29 @@ PYBIND11_MODULE(sample_outcomes_rep_code, m) {
           py::arg("theta_G"),
           py::arg("q_readout"),
           py::arg("Reset_ancilla"),
-          "Run memory QEC sim and return LER from uniform DEM");           
+          "Run circuit-level memory QEC sim and return LER from uniform DEM");           
+
+    m.def("get_LER_from_uniform_DEM_phenom_level",
+          &get_LER_from_uniform_DEM_phenom_level,
+          py::arg("d"),
+          py::arg("rds"),
+          py::arg("ITERS"),
+          py::arg("theta_data"),
+          py::arg("theta_anc"),
+          py::arg("q_readout"),
+          py::arg("Reset_ancilla"),
+          "Run phenom memory QEC sim and return LER from uniform DEM");         
+
+    m.def("get_logical_infidelity",
+          &get_logical_infidelity,
+          py::arg("d"),
+          py::arg("rds"),
+          py::arg("ITERS"),
+          py::arg("theta_data"),
+          py::arg("q_readout"),
+          py::arg("Reset_ancilla"),
+          "Run code-capacity + classical readout errors memory QEC sim and return LER based on logical angle");                   
+          
          
 
     m.def("test_return_vectors", []() {
