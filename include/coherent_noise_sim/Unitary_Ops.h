@@ -10,6 +10,7 @@
 
 using namespace Eigen;
 using std::vector;
+constexpr Real SQRT2_INV = Real(0.7071067811865475);
 
 
 std::vector<std::pair<size_t, size_t>> precompute_CNOT_swaps(int control, const std::vector<int>& targets, int nQ);
@@ -52,7 +53,17 @@ inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
 }
 
 
-inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
+inline void apply_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
+    /*
+    Apply Hadamard gates on the ancilla qubits only.
+
+    Input:
+    psi: the state vector before the Hadamards
+    d: distance of the repetition code
+
+    Output (in-place):
+    psi: the state vector after the Hadamards
+    */
 
     const int data_dim    = 1 << d;
     const int ancilla_dim = 1 << (d - 1);
@@ -66,13 +77,22 @@ inline void apply_fast_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
 
 
 
-
 inline void apply_CNOTs_from_precomputed_swaps(const std::vector<std::pair<size_t, size_t>>& swaps, VectorXc& psi){
+    /*
+    Apply CNOTs by swapping the corresponding indices. Note that SWAP order is constrained based on the CNOT order.
 
+    Input:
+    swaps: vector of pairs of indices to swap
+    psi: the state vector before the CNOTs
+
+    Output (in-place):
+    psi: the state vector after the CNOTs
+
+    */
+    
     Complex* data = psi.data();
 
     for (const auto& [i, j] : swaps) {
-        // std::swap(psi[i], psi[j]);
         std::swap(data[i], data[j]);
     }
 }
@@ -170,79 +190,19 @@ inline void apply_X_on_qubits(VectorXc& psi, const std::vector<uint8_t>& outcome
 }
 
 
-//TODO: CLEANUP THE CODE
-
-
-
-inline void apply_Rz_on_qubits_inplace_old(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
-
-    
-    const Eigen::Index dim = psi.size();
-    const int n = static_cast<int>(std::log2(dim));
-    const Complex I(Real(0), Real(1));
-    const Complex e0 = std::exp(-I * theta);
-    const Complex e1 = std::exp(I * theta);
-
-    const int nq = static_cast<int>(qubits.size());
-    const int n_patterns = 1 << nq;
-
-
-    // Precompute all possible phase combinations for bit patterns on target qubits
-    std::vector<Complex> phase_table(n_patterns);
-    for (int b = 0; b < n_patterns; ++b) {
-        Complex phase = 1.0;
-        for (int i = 0; i < nq; ++i) {
-            int bit = (b >> (nq - 1 - i)) & 1;
-            phase *= (bit == 0) ? e0 : e1;
-        }
-        phase_table[b] = phase;
-    }
-
-    // Create a mask vector indicating bit positions of target qubits
-    std::vector<int> bit_shifts(nq);
-    for (int i = 0; i < nq; ++i)
-        bit_shifts[i] = n - 1 - qubits[i];
-
-    // Apply precomputed phase using bit pattern lookup
-    for (Eigen::Index i = 0; i < dim; ++i) {
-        int pattern = 0;
-        for (int j = 0; j < nq; ++j) {
-            pattern |= ((i >> bit_shifts[j]) & 1) << (nq - 1 - j);
-        }
-        psi[i] *= phase_table[pattern];
-    }
-}
-
-inline void apply_Rz_on_qubits_inplace_old_V2(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
-    
-
-    const Eigen::Index dim = psi.size();
-    const int nQ = static_cast<int>(std::log2(dim));
-    const Complex I(Real(0), Real(1));
-    const Complex e0 = std::exp(-I * theta);
-    const Complex e1 = std::exp(I * theta);
-
-    const int nq = static_cast<int>(qubits.size());
-    std::vector<int> bit_shifts(nq);
-    for (int i = 0; i < nq; ++i)
-        bit_shifts[i] = nQ - 1 - qubits[i];
-
-    ArrayXc phase_mask(dim);
-
-    for (Eigen::Index i = 0; i < dim; ++i) {
-        Complex phase = 1.0;
-        for (int j = 0; j < nq; ++j) {
-            bool bit = (i >> bit_shifts[j]) & 1;
-            phase *= (bit ? e1 : e0);
-        }
-        phase_mask[i] = phase;
-    }
-
-    Eigen::Map<ArrayXc>(psi.data(), psi.size()) *= phase_mask;
-}
-
-
 inline void apply_Rz_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
+    /*
+    Apply e^{-i\theta Z} operation on a set of qubits.
+
+    Inputs:
+    psi: input state vector
+    qubits: vector of indiecs on which to apply the operation
+    theta: angle \theta of the operation
+
+    Output (in-place):
+    the updated state vector
+
+    */
     const Eigen::Index dim = psi.size();
     const int nQ = static_cast<int>(std::log2(dim));
     const Complex I(Real(0), Real(1));
@@ -252,7 +212,7 @@ inline void apply_Rz_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qu
     // Precompute bitmask (bitset) for each qubit
     uint64_t mask = 0;
     for (int q : qubits) {
-        mask |= (1ULL << (nQ - 1 - q));  
+        mask |= (1ULL << (nQ - 1 - q));   //MSB ordering
     }
 
     // Apply phase directly in-place
