@@ -10,7 +10,7 @@
 
 using namespace Eigen;
 using std::vector;
-constexpr Real SQRT2_INV = Real(0.7071067811865475);
+
 
 
 std::vector<std::pair<size_t, size_t>> precompute_CNOT_swaps(int control, const std::vector<int>& targets, int nQ);

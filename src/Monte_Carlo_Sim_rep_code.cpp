@@ -51,7 +51,7 @@
 #include "PrecisionOfTypes.h"
 
 using std::vector;
-using namespace Spectra;
+// using namespace Spectra;
 using namespace Eigen;
 
 
@@ -61,11 +61,11 @@ using namespace Eigen;
 // using Evaluate_Time = std::chrono::duration<Time_Precision>;
 
 
-constexpr Real PI        = Real(3.1415926535897932384626);
-constexpr Real SQRT2     = Real(1.4142135623730951);
-constexpr Real SQRT2_INV = Real(0.7071067811865475);
+// constexpr Real PI        = Real(3.1415926535897932384626);
+// constexpr Real SQRT2     = Real(1.4142135623730951);
+// constexpr Real SQRT2_INV = Real(0.7071067811865475);
 
-constexpr int mantissa_bits = std::numeric_limits<Real>::digits;  // mantissa bits
+// constexpr int mantissa_bits = std::numeric_limits<Real>::digits;  // mantissa bits
 
 
 
@@ -82,11 +82,8 @@ struct AncillaOutcome {
 
 
 
-std::random_device rd;  // Seed
-// std::mt19937 gen(rd()); // Mersenne Twister RNG engine
-// std::minstd_rand gen(12345);
-pcg32 gen;
-// std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+// std::random_device rd;  // Seed
+// pcg32 gen;
 
 //To measure time:
 // auto t0 = Clock::now();
@@ -215,7 +212,7 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 
     apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
     
-    apply_fast_hadamards_on_ancilla_qubits(psi,d); //H on ancillas
+    apply_hadamards_on_ancilla_qubits(psi,d); //H on ancillas
 
     return;
 
