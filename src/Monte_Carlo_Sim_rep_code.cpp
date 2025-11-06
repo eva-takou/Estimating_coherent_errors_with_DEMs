@@ -1067,10 +1067,10 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
 
     MatrixXc Proj = ket0L * ket0L.adjoint() + ket1L * ket1L.adjoint() ;
     
-    std::vector<Real> phi(nsims,0.0);
-    std::vector<Real> thetaL(nsims,0.0);
-    std::vector<Real> infidelity(nsims,0.0);
-    std::vector<Real> leakage(nsims,0.0);
+    // std::vector<Real> phi(nsims,0.0);
+    // std::vector<Real> thetaL(nsims,0.0);
+    // std::vector<Real> infidelity(nsims,0.0);
+    // std::vector<Real> leakage(nsims,0.0);
 
     Real LER = 0.0;
 
@@ -1114,10 +1114,11 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
         Complex b = ket1L.dot(psi);
 
         Real abs_a  = clamp(std::abs(a), Real(0.0), Real(1.0));
-        thetaL[sim] = safe_acos(abs_a);        
+        thetaL[iter] = std::acos(abs_a);        
 
-        phi[sim]=std::arg(b) - std::arg(a);
+        // phi[iter]=std::arg(b) - std::arg(a);
 
+        
         Real sin_theta = std::sin(thetaL );
         LER += sin_theta * sin_theta;  
 
