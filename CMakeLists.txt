@@ -30,11 +30,19 @@ add_subdirectory(external/pybind11)
 
 # Maybe switch to target_include_directories
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
+#include_directories(
+#    ${CMAKE_CURRENT_SOURCE_DIR}/include
+#    ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
+#    ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
+#    ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
+#)
+
+target_include_directories(sample_outcomes_rep_code
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
 )
 
 #${CMAKE_CURRENT_SOURCE_DIR}/external/xsimd/include
