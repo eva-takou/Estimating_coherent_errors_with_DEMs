@@ -511,8 +511,7 @@ Real get_LER_from_uniform_DEM(int d, int rds, int ITERS, Real theta_data, Real t
     
     /*
     Get the logical error rate by measuring the parity of data qubits in the end and comparing with the obtained correction.
-    Here we use the estimated DEM to decode. The estimated edge does not contain hyper-edges. The hyper-edges are only used
-    to redefine the probabilities of edges. Note that if Reset_ancilla option is false, then the estimation procedure might need to be adjusted.
+    Here we use a uniform DEM to decode. 
 
     Inputs:
     d: distance of repetition code
@@ -523,9 +522,6 @@ Real get_LER_from_uniform_DEM(int d, int rds, int ITERS, Real theta_data, Real t
     theta_G:    the error angle for gate errors e^{i\theta_G Z_{control} Z_{target}}
     q_readout:  the classical readout error
     Reset_ancilla: to reset or not the ancilla qubits
-    include_stab_reconstruction: to include or not last measurement of data qubits in the detection events 
-    include_higher_order: to consider or not higher-order correlations (hyperedges) in the estimation  
-    print_higher_orer: to print or not the estimatd values of hyperedges  
 
     Output:
     Logical error rate.
