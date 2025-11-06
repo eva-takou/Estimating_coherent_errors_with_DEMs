@@ -107,6 +107,8 @@ T clamp(const T& v, const T& lo, const T& hi) {
     return (v < lo) ? lo : (hi < v) ? hi : v;
 }
 
+
+
 inline void expand_with_plus_state(const VectorXc& psi_data,
                             VectorXc& psi,
                             int n_anc) {
@@ -126,6 +128,8 @@ inline void expand_with_plus_state(const VectorXc& psi_data,
     }
 }
 
+
+//TODO: WORK ON THIS
 //This gets psi_data x psi_anc where psi_anc is in |+> state.
 inline void reinitialize_ancilla(const VectorXc& psi_full, VectorXc& psi_full_out, int n_anc) {
     
@@ -191,7 +195,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     apply_precomputed_ZZ_mask(psi, ZZ_mask); 
     
     //Rotate ancilla before Z-basis measurement
-    apply_fast_hadamards_on_ancilla_qubits(psi,d);
+    apply_hadamards_on_ancilla_qubits(psi,d);
 
     return psi;
 }
@@ -283,15 +287,40 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
 
 
 
+Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout, 
+                                bool Reset_ancilla,  bool include_higher_order, bool print_higher_order){
+    
+    /*
+    Get the logical error rate by measuring the parity of data qubits in the end and comparing with the obtained correction.
+    Here we use the estimated DEM to decode. The estimated edge does not contain hyper-edges. The hyper-edges are only used
+    to redefine the probabilities of edges. Note that if Reset_ancilla option is false, then the estimation procedure might need to be adjusted.
 
+    Inputs:
+    d: distance of repetition code
+    rds: the number of QEC rounds
+    ITERS: the Monte Carlo iterations 
+    theta_data: the error angle for data qubits e^{-i\theta_data Z}
+    theta_anc:  the error angle for ancilla qubits e^{-i\theta_anc Z}
+    theta_G:    the error angle for gate errors e^{i\theta_G Z_{control} Z_{target}}
+    q_readout:  the classical readout error
+    Reset_ancilla: to reset or not the ancilla qubits
+    include_stab_reconstruction: to include or not last measurement of data qubits in the detection events 
+    include_higher_order: to consider or not higher-order correlations (hyperedges) in the estimation  
+    print_higher_orer: to print or not the estimatd values of hyperedges  
 
-//This is to get directly the outcomes w/o storing them
-Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout, int Reset_ancilla, int include_stab_reconstruction){
+    Output:
+    Logical error rate.
+    */
+
 
     // Fixed values/vectors
     const int n_anc  = d - 1;
     const int n_data = d;    
     const int nQ     = n_data+n_anc;
+
+    bool include_stab_reconstruction = true;    
+    int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
+
     
     std::vector<int>  idxs_data(n_data);
     for (int i=0; i<d; ++i){ idxs_data[i]=i;}
@@ -332,7 +361,6 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
     std::vector<uint8_t> outcome_this_rd(n_anc);
     std::vector<uint8_t> ancilla_bitstring;
 
-    int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
 
     ancilla_bitstring.reserve(n_anc * rds_effective); 
     
@@ -360,7 +388,6 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
     std::vector<Real> cumsum_data(1<<d);
     std::vector<Real> cdf_buffer_total(1<<nQ);
 
-
     cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
 
     VectorXc psi_buffer(psi0.size());
@@ -385,7 +412,7 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
                                                                 shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
             }
             else{
-                outcome_this_rd = measure_all_ancilla_NEW(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
+                outcome_this_rd = measure_all_ancilla(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
             }
 
             if (Reset_ancilla==1){
@@ -399,7 +426,6 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
 
-                
                 reinitialize_ancilla(psi,psi,n_anc);
                 // for (const auto& [i_full, i_reduced] : index_map)
                 //     psi_data[i_reduced] = psi[i_full];           
@@ -431,8 +457,8 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
 
 
         cumSum_from_state_vector(psi_data, cumsum_data);
-        // outcome_of_data = measure_all_data(d,shifted_data_bits_from_d,cumsum_data); 
-        measure_all_data_NEW(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
+        
+        measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
 
         all_data_outcomes[iter] = outcome_of_data;
 
@@ -456,7 +482,7 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
     std::vector<Real> p_diag;
     
     auto start = std::chrono::high_resolution_clock::now();
-    std::tie(p_space,p_time,p_diag) = estimate_edges_rep_code(batch,d, n_anc, rds_effective);
+    std::tie(p_space,p_time,p_diag) = estimate_edges_rep_code(batch, d, n_anc, rds_effective, include_higher_order, print_higher_order);
     auto end = std::chrono::high_resolution_clock::now();
     
     std::chrono::duration<double> elapsed = end - start;
@@ -469,8 +495,6 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
     auto corrections = decode_with_pymatching_create_graph_V2(Hx, p_space, p_time, p_diag, batch,rds, include_stab_reconstruction);
     // auto corrections = decode_batch_with_pymatching(Hx, batch, rds_effective);
     
-
-    
     Real LER_sum = 0.0;
     for(int iter=0; iter<ITERS; ++iter){
         LER_sum += logical_XL_flipped(all_data_outcomes[iter], corrections[iter]) ? 1.0 : 0.0;
@@ -482,6 +506,213 @@ Real get_LER_faster(int d, int rds, int ITERS, Real theta_data, Real theta_anc, 
     return LER;
 }
 
+Real get_LER_from_uniform_DEM(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout, 
+                               bool Reset_ancilla){
+    
+    /*
+    Get the logical error rate by measuring the parity of data qubits in the end and comparing with the obtained correction.
+    Here we use the estimated DEM to decode. The estimated edge does not contain hyper-edges. The hyper-edges are only used
+    to redefine the probabilities of edges. Note that if Reset_ancilla option is false, then the estimation procedure might need to be adjusted.
+
+    Inputs:
+    d: distance of repetition code
+    rds: the number of QEC rounds
+    ITERS: the Monte Carlo iterations 
+    theta_data: the error angle for data qubits e^{-i\theta_data Z}
+    theta_anc:  the error angle for ancilla qubits e^{-i\theta_anc Z}
+    theta_G:    the error angle for gate errors e^{i\theta_G Z_{control} Z_{target}}
+    q_readout:  the classical readout error
+    Reset_ancilla: to reset or not the ancilla qubits
+    include_stab_reconstruction: to include or not last measurement of data qubits in the detection events 
+    include_higher_order: to consider or not higher-order correlations (hyperedges) in the estimation  
+    print_higher_orer: to print or not the estimatd values of hyperedges  
+
+    Output:
+    Logical error rate.
+    */
+
+
+    // Fixed values/vectors
+    const int n_anc  = d - 1;
+    const int n_data = d;    
+    const int nQ     = n_data+n_anc;
+
+    bool include_stab_reconstruction = true;    
+    int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
+
+    
+    std::vector<int>  idxs_data(n_data);
+    for (int i=0; i<d; ++i){ idxs_data[i]=i;}
+
+    std::vector<int> idxs_anc(n_anc);
+    for (int i = 0; i < n_anc; ++i) idxs_anc[i] = i + d;
+
+    std::vector<int> idxs_all(nQ);
+    for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
+
+    std::vector<int> shifted_anc_inds(n_anc);
+    
+    for (int i = 0; i < n_anc; ++i) {
+        shifted_anc_inds[i] = nQ - 1 - idxs_anc[i];
+    }    
+
+    std::vector<int> shifted_data_bits_from_d(n_data);
+    for (int i=0; i<n_data; ++i){
+        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
+    }
+
+    std::vector<int> data_positions;
+    data_positions.reserve(n_data);
+
+    std::vector<bool> is_anc(nQ, false);
+    for (int i : idxs_anc) {
+        is_anc[nQ - 1 - i] = true;
+    }
+
+    for (int bit = 0; bit < nQ; ++bit) {
+        if (!is_anc[bit]) {
+            data_positions.push_back(bit);
+        }
+    }    
+    
+    
+    std::vector<uint8_t> outcome_of_data(n_data); 
+    std::vector<uint8_t> outcome_this_rd(n_anc);
+    std::vector<uint8_t> ancilla_bitstring;
+
+    
+
+    ancilla_bitstring.reserve(n_anc * rds_effective); 
+    
+    std::vector<std::pair<size_t, size_t>> all_swaps;
+    ArrayXc phase_mask;
+    ArrayXc ZZ_mask;
+    std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
+
+ 
+
+    const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
+    const Eigen::Index dim = psi0.size();    
+
+    std::vector<std::pair<int, int>> index_map = precompute_kept_index_map_for_ptrace_of_ancilla(n_anc, d);
+
+    std::unordered_map<uint64_t, std::vector<size_t>> kept_indices_cache; 
+
+    VectorXc psi;    
+    psi.resize(psi0.size());
+
+    VectorXc psi_data(1 << d);
+    // VectorXc psi_plus_anc = plus_state(n_anc);
+
+
+    std::vector<Real> cumsum_data(1<<d);
+    std::vector<Real> cdf_buffer_total(1<<nQ);
+
+    cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
+
+    VectorXc psi_buffer(psi0.size());
+
+    std::vector<std::vector<uint8_t>> all_data_outcomes;
+    all_data_outcomes.resize(ITERS);
+
+    std::vector<std::vector<int>> Hx = Hx_rep_code(d);
+    std::vector<std::vector<uint8_t>> batch;
+    batch.resize(ITERS);
+
+
+    for (int iter=0; iter<ITERS; ++iter){
+
+        std::memcpy(psi.data(), psi0.data(), sizeof(Complex) * psi0.size());
+        ancilla_bitstring.clear(); //Reset
+
+        for (int r = 0; r < rds; ++r) {
+
+            if (r==0){
+                outcome_this_rd = measure_all_ancilla_first_rd(nQ, n_anc,  idxs_anc,  psi, kept_indices_cache, 
+                                                                shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
+            }
+            else{
+                outcome_this_rd = measure_all_ancilla(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
+            }
+
+            if (Reset_ancilla==1){
+
+                apply_X_on_qubits(psi, outcome_this_rd,d, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
+            }
+
+            // Store outcome
+            ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());
+
+            // Prepare state for next round, unless we are done with QEC rds 
+            if (r != rds - 1) {
+
+                reinitialize_ancilla(psi,psi,n_anc);
+                // for (const auto& [i_full, i_reduced] : index_map)
+                //     psi_data[i_reduced] = psi[i_full];           
+
+                // psi_data.normalize();    
+                
+                // expand_with_plus_state(psi_data, psi, n_anc); //This is a bit faster
+
+                prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
+            
+            }
+            
+        }
+
+        //Now measure data qubits
+
+        if (Reset_ancilla==1){
+
+            for (const auto& [i_full, i_reduced] : index_map)
+                psi_data[i_reduced] = psi[i_full];           
+            
+        }
+        else{
+            psi_data = discard_measured_qubits(psi, idxs_data, idxs_anc, outcome_this_rd, nQ); //Need to discard based on measurement outcomes
+        }
+        
+        psi_data.normalize();
+        apply_Hadamard_on_all_qubits(psi_data);
+
+
+        cumSum_from_state_vector(psi_data, cumsum_data);
+        
+        measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
+
+        all_data_outcomes[iter] = outcome_of_data;
+
+        if (include_stab_reconstruction==1){
+
+            for (int k=0; k<d-1; ++k){
+                ancilla_bitstring.push_back( outcome_of_data[k] ^ outcome_of_data[k+1]);
+            }
+        }
+
+        form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+
+
+        batch[iter] = ancilla_bitstring;
+
+    }
+
+    //Set an arbitrary weight for all probabilities (equal weights)
+    std::vector<Real> p_space(rds_effective * d, 0.1); 
+    std::vector<Real> p_time(rds * n_anc, 0.1);
+    std::vector<Real> p_diag(rds * (n_anc-1), 0.1);
+
+    auto corrections = decode_with_pymatching_create_graph(Hx, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
+    
+    Real LER_sum = 0.0;
+    for(int iter=0; iter<ITERS; ++iter){
+        LER_sum += logical_XL_flipped(all_data_outcomes[iter], corrections[iter]) ? 1.0 : 0.0;
+    }
+
+    Real LER = LER_sum / ITERS;    
+   
+
+    return LER;
+}
 
 
 

@@ -943,7 +943,7 @@ std::vector<Real> estimate_bd_edges(const Eigen::Array<bool, Eigen::Dynamic, Eig
 
 
 std::tuple<std::vector<Real>,std::vector<Real>,std::vector<Real>> estimate_edges_rep_code(const std::vector<std::vector<uint8_t>>& batch, int d, int n_stabs, int rds, 
-                                                                                          uint8_t include_higher_order, uint8_t print_higher_order){
+                                                                                          bool include_higher_order, bool print_higher_order){
     
     /*
     Estimate edge/hyper-edge probabilities for a repetition code.
@@ -960,19 +960,18 @@ std::tuple<std::vector<Real>,std::vector<Real>,std::vector<Real>> estimate_edges
     p_time: probabilities of time edges
     p_diag: probabilities of diagonal edges
     */
-                                                                                            
-
-    
+                                               
     int nsims = batch.size();
     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> eigen_batch = cast_as_Eigen_batch(batch);
 
     std::vector<Real>  vi_mean = calculate_vi_mean(eigen_batch, nsims, n_stabs, rds);
 
-    if (include_higher_order==1){
+    if (include_higher_order){
+
         ProbDict four_point_probs  = get_all_four_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds);
         ProbDict three_point_probs = get_all_three_point_probs(eigen_batch, vi_mean,  nsims,  n_stabs,  rds, four_point_probs);
 
-        if (print_higher_order==1){
+        if (print_higher_order){
 
             for (const auto& [mask, val] : three_point_probs.values) {
                 std::cout << "(";
