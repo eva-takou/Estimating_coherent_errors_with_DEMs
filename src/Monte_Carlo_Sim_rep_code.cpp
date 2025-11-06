@@ -919,9 +919,9 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
     const int n_anc      = d - 1;
     const int n_data     = d;    
     const int nQ         = n_data+n_anc;
-    const Real theta_G   = 0.0;
-    const Real theta_anc = 0.0;
-    const bool include_stab_reconstruction = false;
+    Real theta_G   = 0.0;
+    Real theta_anc = 0.0;
+    bool include_stab_reconstruction = false;
 
 
     std::vector<int>  idxs_data(n_data);
@@ -1068,7 +1068,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
     MatrixXc Proj = ket0L * ket0L.adjoint() + ket1L * ket1L.adjoint() ;
     
     // std::vector<Real> phi(nsims,0.0);
-    // std::vector<Real> thetaL(nsims,0.0);
+    std::vector<Real> thetaL(ITERS,0.0);
     // std::vector<Real> infidelity(nsims,0.0);
     // std::vector<Real> leakage(nsims,0.0);
 
@@ -1119,7 +1119,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
         // phi[iter]=std::arg(b) - std::arg(a);
 
         
-        Real sin_theta = std::sin(thetaL );
+        Real sin_theta = std::sin(thetaL[iter] );
         LER += sin_theta * sin_theta;  
 
     }
