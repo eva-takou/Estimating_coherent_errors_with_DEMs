@@ -49,6 +49,7 @@
 
 
 #include "PrecisionOfTypes.h"
+#include "constants.h"
 
 using std::vector;
 // using namespace Spectra;
