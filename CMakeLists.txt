@@ -42,7 +42,7 @@ include_directories(
 #---- Python module -----
 
 pybind11_add_module(sample_outcomes_rep_code 
-                    src/bindings.cpp 
+                    src/bindings_rep_code.cpp 
                     src/Monte_Carlo_Sim_rep_code.cpp 
                     src/Unitary_Ops.cpp 
                     src/Kets.cpp 
