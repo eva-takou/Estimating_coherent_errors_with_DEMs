@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(sample_outcomes)
+project(Coherent_noise_simulator)
 
 
 set(CMAKE_CXX_STANDARD 14)        # Require at least C++14
@@ -26,21 +26,11 @@ endif()
 #--- external dependencies ----
 add_subdirectory(external/pybind11)
 
-# header-only libraries
-
-# Maybe switch to target_include_directories
-
-#include_directories(
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include
-#    ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
-#    ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
-#    ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
-#)
 
 
 #---- Python module -----
 
-pybind11_add_module(sample_outcomes_rep_code 
+pybind11_add_module(sample_repetition_code 
                     src/bindings_rep_code.cpp 
                     src/Monte_Carlo_Sim_rep_code.cpp 
                     src/Unitary_Ops.cpp 
@@ -49,7 +39,8 @@ pybind11_add_module(sample_outcomes_rep_code
                     src/estimation_functions_rep_code.cpp 
                     src/Measurements.cpp )
 
-target_include_directories(sample_outcomes_rep_code
+# header-only libraries
+target_include_directories(sample_repetition_code
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
@@ -57,14 +48,9 @@ target_include_directories(sample_outcomes_rep_code
         ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
 )
 
-#${CMAKE_CURRENT_SOURCE_DIR}/external/xsimd/include
 
 
 
-
-
-
-
-#To compile use this:
+#To compile use this go inside the build file and use the commands below:
 #build % cmake -DPython_EXECUTABLE=$(which python) ..
-#make
+#make -j$(sysctl -n hw.ncpu)
