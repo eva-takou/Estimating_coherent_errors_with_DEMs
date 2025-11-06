@@ -3,8 +3,11 @@
 #include <Eigen/Dense>
 #include <set>
 #include <random>
+#include "pcg_random.hpp"
 #include "PrecisionOfTypes.h"
 
+std::random_device rd;  // Seed
+pcg32 rand_gen;
 
 inline void cumSum_from_state_vector(const VectorXc& psi, std::vector<Real>& cdf_buffer) {
 
@@ -58,7 +61,7 @@ inline std::vector<uint8_t> unpack_bitstring(uint64_t packed, size_t length) {
     return bits;
 }
 
-//TODO: NEED RANDOM NUMBER GENERATOR HERE....
+
 
 inline void form_defects(std::vector<uint8_t>& anc_outcome, int n_anc, int rds, Real q_readout, int Reset_ancilla, int include_stab_reconstruction) {
     if (include_stab_reconstruction == 1) {
@@ -68,7 +71,7 @@ inline void form_defects(std::vector<uint8_t>& anc_outcome, int n_anc, int rds, 
     if (q_readout > 1e-20) {
         std::uniform_real_distribution<> dis(0.0, 1.0);
         for (int i = 0; i < n_anc * (rds - 1); ++i) {
-            anc_outcome[i] ^= (dis(gen) < q_readout) ? 1 : 0;
+            anc_outcome[i] ^= (dis(rand_gen) < q_readout) ? 1 : 0;
         }
     }
 
