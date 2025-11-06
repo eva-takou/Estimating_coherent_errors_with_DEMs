@@ -45,7 +45,7 @@ git submodule update
 mkdir build
 cd build
 cmake -DPython_EXECUTABLE=$(which python3) ..
-make -j$(sysctl -n hw
+make -j$(sysctl -n hw.ncpu)
 ```
 
 
