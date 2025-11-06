@@ -13,3 +13,9 @@ This is a c++ package to simulate circuit-level coherent errors for a repetition
 - Create a build folder and move into the build folder
 - Compile via: cmake -DPython_EXECUTABLE=$(which python3) .. and then make -j$(sysctl -n hw.ncpu)
 
+
+```shell
+# This is a comment in a shell script example
+echo "Hello, World!"
+ls -l
+
