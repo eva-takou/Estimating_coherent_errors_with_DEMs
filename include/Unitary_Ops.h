@@ -7,6 +7,7 @@
 #include <utility>
 #include <cmath>
 #include "PrecisionOfTypes.h"
+#include "constants.h"
 
 using namespace Eigen;
 using std::vector;
