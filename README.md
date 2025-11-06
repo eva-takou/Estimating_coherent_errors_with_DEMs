@@ -4,6 +4,9 @@ This is a c++ package to simulate circuit-level coherent errors for a repetition
 
 
 # Prerequisites
+- Pymatching is required to decode the DEMs.
+- The Eigen, pcg, pybind11 packages are also used. 
+
 
 # Installing and compiling
 1. Create a virtual environment locally. 
