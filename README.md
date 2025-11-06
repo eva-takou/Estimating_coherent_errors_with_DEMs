@@ -6,7 +6,19 @@ This is a c++ package to simulate circuit-level coherent errors for a repetition
 # Prerequisites
 
 # Installing and compiling
-- Create a virtual environment locally. Pip install pymatching.
+- Create a virtual environment locally. 
+```shell
+virtualenv coherent_noise
+source coherent_noise/bin/activte
+cd coherent noise
+```
+
+-Install pymatching.
+```shell
+pip install pymatching
+```
+
+
 - Git clone this repository to your virtual environment.
 - Move to the root folder (Estimating_coherent_errors_with_DEMs) 
 - Do git submodule init and then git submodule update. This will link the external packages need to run the code.
@@ -14,8 +26,6 @@ This is a c++ package to simulate circuit-level coherent errors for a repetition
 - Compile via: cmake -DPython_EXECUTABLE=$(which python3) .. and then make -j$(sysctl -n hw.ncpu)
 
 
-```shell
 # This is a comment in a shell script example
-echo "Hello, World!"
-ls -l
+
 
