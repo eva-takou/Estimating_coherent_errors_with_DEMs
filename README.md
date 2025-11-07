@@ -27,7 +27,7 @@ pip install numpy
 
 3. Clone this repository to your virtual environment.
 ```shell
-Git clone https://github.com/eva-takou/Estimating_coherent_errors_with_DEMs.git
+git clone https://github.com/eva-takou/Estimating_coherent_errors_with_DEMs.git
 ```
 
 4. Move to the root folder.
