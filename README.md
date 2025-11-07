@@ -33,7 +33,7 @@ Git clone https://github.com/eva-takou/Estimating_coherent_errors_with_DEMs.git
 cd Estimating_coherent_errors_with_DEMs
 ```
 
-5. Link external packages need to run these codes with the commands:
+5. Link external packages needed to run these codes with the commands:
 
 ```shell
 git submodule init
