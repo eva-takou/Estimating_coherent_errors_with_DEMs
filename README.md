@@ -6,6 +6,7 @@ This is a c++/python package to simulate, estimate and decode circuit-level cohe
 
 # Prerequisites
 - Pymatching is required to decode the DEMs.
+- Numpy is also needed.
 - The Eigen, pcg, pybind11 packages are also used. 
 
 
@@ -18,9 +19,10 @@ source ENVIRONMENT_NAME/bin/activate
 cd ENVIRONMENT_NAME
 ```
 
-2. Install pymatching.
+2. Install pymatching and numpy.
 ```shell
 pip install pymatching
+pip install numpy
 ```
 
 3. Clone this repository to your virtual environment.
@@ -49,6 +51,9 @@ cd build
 cmake -DPython_EXECUTABLE=$(which python3) ..
 make -j$(sysctl -n hw.ncpu)
 ```
+
+7. Using code from VScode:
+Note that you need to open the folder of your local virtual environment (and not just the root folder of this project), so that you also have access to pymatching and numpy.
 
 # Authors
 Evangelia Takou
