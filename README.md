@@ -6,7 +6,7 @@ This is a c++/python package to simulate, estimate and decode circuit-level cohe
 
 # Prerequisites
 - Pymatching is required to decode the DEMs.
-- Numpy is also needed.
+- Numpy & joblib are also needed.
 - The Eigen, pcg, pybind11 packages are also used. 
 
 
@@ -23,6 +23,7 @@ cd ENVIRONMENT_NAME
 ```shell
 pip install pymatching
 pip install numpy
+pip install joblib
 ```
 
 3. Clone this repository to your virtual environment.
