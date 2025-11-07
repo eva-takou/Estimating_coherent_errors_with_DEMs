@@ -10,11 +10,12 @@ This is a c++/python package to simulate, estimate and decode circuit-level cohe
 
 
 # Installing and compiling
-1. Create a virtual environment locally. 
+1. Install a python version, and create a virtual environment with this python version:
 ```shell
-virtualenv coherent_noise
-source coherent_noise/bin/activte
-cd coherent noise
+brew install python@3.11
+virtualenv -p python3.11 ENVIRONMENT_NAME
+source ENVIRONMENT_NAME/bin/activate
+cd ENVIRONMENT_NAME
 ```
 
 2. Install pymatching.
