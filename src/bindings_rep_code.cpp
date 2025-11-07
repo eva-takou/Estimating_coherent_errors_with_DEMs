@@ -5,7 +5,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(sample_outcomes_rep_code, m) {
+PYBIND11_MODULE(sample_repetition_code, m) {
     m.doc() = "Wrapper for simulating repetition code";
 
 //     m.def("sample_outcomes",
