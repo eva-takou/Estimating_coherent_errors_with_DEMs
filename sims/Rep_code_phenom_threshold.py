@@ -17,6 +17,10 @@ plt.rcParams["font.family"] = "Microsoft Sans Serif"
 
 
 def process_single_run_uniform(d,theta,ITERS):
+    '''
+    Get the logical error rate if all coherent error angles are theta for data, and ancilla.
+    The decoding graph is assumed to be uniform.
+    '''    
     rds        = d
     theta_data = theta
     theta_anc  = theta 
@@ -29,6 +33,11 @@ def process_single_run_uniform(d,theta,ITERS):
 
 
 def process_single_run_estimated(d,theta,ITERS):
+    '''
+    Get the logical error rate if all coherent error angles are theta for data, and ancilla.
+    The decoding graph is assumed to be the one that we estimate.
+    '''    
+
     rds        = d
     theta_data = theta
     theta_anc  = theta 
