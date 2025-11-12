@@ -6,37 +6,7 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(sample_repetition_code, m) {
-    m.doc() = "Wrapper for simulating repetition code";
-
-//     m.def("sample_outcomes",
-//           &sample_outcomes_MC_Final,
-//           py::arg("d"),
-//           py::arg("rds"),
-//           py::arg("Nsamples"),
-//           py::arg("Nsamples_data"),
-//           py::arg("nsims"),
-//           py::arg("theta_data"),
-//           py::arg("theta_anc"),
-//           py::arg("theta_G"),
-//           py::arg("q_readout"),
-//           py::arg("Reset_ancilla"),
-//           py::arg("include_stab_reconstruction"),
-//           "Run quantum error correction simulation and return results");
-
-//     m.def("sample_outcomes_LER_via_thetaL",
-//           &sample_outcomes_MC_Final_LER_based_on_thetaL,
-//           py::arg("d"),
-//           py::arg("rds"),
-//           py::arg("Nsamples"),
-//           py::arg("Nsamples_data"),
-//           py::arg("nsims"),
-//           py::arg("theta_data"),
-//           py::arg("theta_anc"),
-//           py::arg("theta_G"),
-//           py::arg("q_readout"),
-//           py::arg("Reset_ancilla"),
-//           py::arg("include_stab_reconstruction"),
-//           "Run quantum error correction simulation and return results");        
+    m.doc() = "Wrapper for simulating repetition code";     
 
 
     m.def("get_LER_from_estimated_DEM",
@@ -86,15 +56,7 @@ PYBIND11_MODULE(sample_repetition_code, m) {
           py::arg("Reset_ancilla"),
           "Run code-capacity + classical readout errors memory QEC sim and return LER based on logical angle");                   
           
-         
 
-    m.def("test_return_vectors", []() {
-        std::vector<std::vector<int>> result(3);
-        result[0] = {1, 2, 3};
-        result[1] = {4, 5, 6};
-        result[2] = {7, 8, 9};
-        return result;
-    });
 
 }
 
