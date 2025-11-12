@@ -56,8 +56,10 @@ make -j$(sysctl -n hw.ncpu)
 7. Using code from VScode:
 Note that you need to open the folder of your local virtual environment (and not just the root folder of this project), so that you also have access to pymatching and numpy.
 
+8. Run some examples found in the folder sims.
+
 # Authors
-Evangelia Takou
+Evangelia Takou (contact at evangelia.takou@duke.edu if there are questions)
 
 # License
 This project is licensed under..
