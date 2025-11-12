@@ -130,37 +130,7 @@ ArrayXc compute_ZZ_phase_mask(int nQ, int q1, int q2, Real theta) {
 
 
 
-
-
-
-
-
-
-
-
-
-
 //------------------------- Unused ---------------------------------------------
-
-//For Hadamard operations
-// std::vector<std::pair<size_t, size_t>> precompute_Hadamard_flip_masks(const std::vector<int>& qubits, int nQ) {
-//     const size_t dim = 1ULL << nQ;
-//     std::vector<std::pair<size_t, size_t>> ij_pairs;
-    
-//     ij_pairs.reserve(qubits.size() * (dim / 2));  // conservative overestimate
-
-//     for (int q : qubits) {
-//         const size_t flip_bit = 1ULL << (nQ - 1 - q);
-//         for (size_t i = 0; i < dim; ++i) {
-//             if ((i & flip_bit) == 0) {
-//                 ij_pairs.emplace_back(i, i ^ flip_bit);
-//             }
-//         }
-//     }
-
-//     return ij_pairs;
-// }
-
 
 
 // void apply_Hadamard_on_qubit_in_place(VectorXc& psi, int q) {
