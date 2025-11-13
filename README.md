@@ -62,7 +62,7 @@ Note that you need to open the folder of your local virtual environment (and not
 Evangelia Takou (contact at evangelia.takou@duke.edu if there are questions)
 
 # License
-This project is licensed under Apache 2.0 - see the [LICENSE] file for details.
+This project is licensed under Apache 2.0 - see the [LICENSE](LICENSE) file for details.
 
 
 
