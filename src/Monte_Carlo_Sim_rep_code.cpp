@@ -34,10 +34,6 @@
 
 #include <Eigen/Eigenvalues>
 
-//Maybe unused?
-// #include <Spectra/SymEigsSolver.h>
-// #include <Spectra/MatOp/DenseSymMatProd.h>
-// #include <Spectra/Util/SelectionRule.h>
 
 #include <chrono>
 #include <tuple>
@@ -52,7 +48,6 @@
 #include "constants.h"
 
 using std::vector;
-// using namespace Spectra;
 using namespace Eigen;
 
 
@@ -61,13 +56,13 @@ using namespace Eigen;
 // using Clock         = std::chrono::high_resolution_clock;
 // using Evaluate_Time = std::chrono::duration<Time_Precision>;
 
+// std::random_device rd;  // Seed
+// pcg32 gen;
 
-// constexpr Real PI        = Real(3.1415926535897932384626);
-// constexpr Real SQRT2     = Real(1.4142135623730951);
-// constexpr Real SQRT2_INV = Real(0.7071067811865475);
-
-// constexpr int mantissa_bits = std::numeric_limits<Real>::digits;  // mantissa bits
-
+//To measure time:
+// auto t0 = Clock::now();
+// auto t1 = Clock::now();
+// time_for_CNOT += Evaluate_Time(t1-t0).count();
 
 
 struct DataOutcome {
@@ -81,15 +76,6 @@ struct AncillaOutcome {
     std::vector<DataOutcome> data_outcomes;  // nested vector of data outcomes
 };
 
-
-
-// std::random_device rd;  // Seed
-// pcg32 gen;
-
-//To measure time:
-// auto t0 = Clock::now();
-// auto t1 = Clock::now();
-// time_for_CNOT += Evaluate_Time(t1-t0).count();
 
 struct VectorHash {
     size_t operator()(const std::vector<uint8_t>& v) const {
@@ -110,9 +96,8 @@ T clamp(const T& v, const T& lo, const T& hi) {
 
 
 
-inline void expand_with_plus_state(const VectorXc& psi_data,
-                            VectorXc& psi,
-                            int n_anc) {
+inline void expand_with_plus_state(const VectorXc& psi_data, VectorXc& psi,int n_anc) {
+    
     const int dim_data = psi_data.size();
     const int dim_full = dim_data << n_anc; // 2^(d+n_anc)
     const Real scale = 1.0 / std::sqrt(1 << n_anc);
@@ -130,15 +115,24 @@ inline void expand_with_plus_state(const VectorXc& psi_data,
 }
 
 
-//TODO: WORK ON THIS
-//This gets psi_data x psi_anc where psi_anc is in |+> state.
 inline void reinitialize_ancilla(const VectorXc& psi_full, VectorXc& psi_full_out, int n_anc) {
+    /*
+    Prepare again the |psi_data>\otimes |+>^{n_anc} state after measuring and reseting the ancilla qubits.
     
+    Inputs:
+    psi_full: the total state after measuring and reseting ancilla
+    psi_full_out: same as psi_full
+    n_anc: number of ancilla qubits
+
+    Output (inline):
+    the updated state |psi_data>\otimes |+>^{n_anc}
+
+    */
     const Eigen::Index dim_anc  = 1 << n_anc;
     const Eigen::Index dim_data = psi_full.size() / dim_anc;
     const Real scale = 1.0 / std::sqrt(static_cast<Real>(dim_anc));
 
-    // Step 1: compute norm over kept components
+    // Compute norm of data qubit state (outcome of ancilla is 000...0)
     Real norm_sq = 0.0;
     const Complex* src = psi_full.data();
     for (Eigen::Index i = 0; i < dim_data; ++i) {
@@ -146,12 +140,12 @@ inline void reinitialize_ancilla(const VectorXc& psi_full, VectorXc& psi_full_ou
         norm_sq += std::norm(val);
     }
     const Real norm = std::sqrt(norm_sq);
-    const Real overall_scale = scale / norm;
+    const Real overall_scale = scale / norm; // = 1/(norm * sqrt(2^n_anc))
 
-    // Step 2: resize output |ψ⟩ (same size as input)
+   
     psi_full_out.resize(psi_full.size());
 
-    // Step 3: fill |ψ_data⟩⊗|+>ⁿ into psi_full_out
+    // Create the output state
     Complex* dst = psi_full_out.data();
     src = psi_full.data();
     for (Eigen::Index i = 0; i < dim_data; ++i) {
@@ -423,7 +417,7 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
 
                 // psi_data.normalize();    
                 
-                // expand_with_plus_state(psi_data, psi, n_anc); //This is a bit faster
+                // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
             
@@ -637,7 +631,7 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
 
                 // psi_data.normalize();    
                 
-                // expand_with_plus_state(psi_data, psi, n_anc); //This is a bit faster
+                // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
             
@@ -838,7 +832,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
 
                 // psi_data.normalize();    
                 
-                // expand_with_plus_state(psi_data, psi, n_anc); //This is a bit faster
+                // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
             
@@ -896,7 +890,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     return LER;
 }
 
-//THIS TO BE TESTED...
+//TODO: TEST THIS FUNCTION
 Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_readout, bool Reset_ancilla){
     /*
     Used only for coherent data errors, or coherent data errors + classical readout errors. Calculates the logical infidelity
@@ -1028,7 +1022,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
 
                 // psi_data.normalize();    
                 
-                // expand_with_plus_state(psi_data, psi, n_anc); //This is a bit faster
+                // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
             
@@ -1065,10 +1059,7 @@ Real get_logical_infidelity(int d, int rds, int ITERS, Real theta_data,  Real q_
 
     MatrixXc Proj = ket0L * ket0L.adjoint() + ket1L * ket1L.adjoint() ;
     
-    // std::vector<Real> phi(nsims,0.0);
     std::vector<Real> thetaL(ITERS,0.0);
-    // std::vector<Real> infidelity(nsims,0.0);
-    // std::vector<Real> leakage(nsims,0.0);
 
     Real LER = 0.0;
 
