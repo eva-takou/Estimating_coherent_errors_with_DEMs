@@ -43,12 +43,11 @@ pybind11_add_module(sample_repetition_code
 target_include_directories(sample_repetition_code
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen        
         ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
 )
 
-
+#${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
 
 
 #To compile use this go inside the build file and use the commands below:
