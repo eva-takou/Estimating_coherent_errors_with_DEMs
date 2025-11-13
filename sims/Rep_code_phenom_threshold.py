@@ -1,7 +1,7 @@
 import sys
 
 #Provide the path to the build folder
-sys.path.insert(0, "/Users/evatakou/Coherent_noise_public_code/Estimating_coherent_errors_with_DEMs/build")  # path to the .so file
+sys.path.insert(0, "/Users/evatakou/test_c/Estimating_coherent_errors_with_DEMs/build")  # path to the .so file
 
 import sample_repetition_code
 import numpy as np
