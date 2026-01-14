@@ -420,7 +420,7 @@ std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_par
 
 
 
-std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_total_pcm(){
+std::vector<std::vector<int>> get_total_pcm(){
 
     std::vector<std::vector<int>> H(8, std::vector<int>(9, 0));
     //X part
