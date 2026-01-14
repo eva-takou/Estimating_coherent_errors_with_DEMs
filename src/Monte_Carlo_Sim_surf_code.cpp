@@ -506,7 +506,7 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
 }
 
 
-Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real q_readout,  bool Reset_ancilla){
+Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout,  bool Reset_ancilla){
    
     // Fixed values/vectors
 
@@ -522,6 +522,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     const int nQ  = n_data+n_anc;
 
     Real theta_G = 0.0;
+    Real theta_anc = 0.0;
 
     std::vector<int>  idxs_data(n_data);
     for (int i=0; i<n_data; ++i){ idxs_data[i]=i;}
@@ -616,11 +617,11 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
                 outcome_this_rd = measure_all_ancilla_first_rd(nQ, n_anc,  idxs_anc,  psi, kept_indices_cache, 
                                                                 shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
 
-                std::cout << "Measured first round of ancilla";                                                  
+                                                         
             }
             else{
                 outcome_this_rd = measure_all_ancilla(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
-                std::cout << "Measured next ancilla rounds";                                                  
+                                                  
             }
 
             if (Reset_ancilla==1){
@@ -671,7 +672,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
         
         measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
 
-        std::cout << "Measured all data qubits";
+        
 
         all_data_outcomes[iter] = outcome_of_data;
 
@@ -702,7 +703,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
 
     //Set an arbitrary weight for all probabilities (equal weights) 
     std::vector<Real> p_space(rds_effective * n_data, 0.1); 
-    std::vector<Real> p_time(rds * n_anc, 0.1);
+    std::vector<Real> p_time(rds * n_anc, 0.0);
     std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
     
     auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
