@@ -513,8 +513,7 @@ std::tuple< std::vector<AncillaOutcome>,
                 outcome_this_rd = measure_all_ancilla_first_rd(nQ, n_anc,  idxs_anc,  psi, kept_indices_cache, 
                                                                shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
 
-
-                                                                           
+                                
                 t1_meas_anc = Clock::now();
             }
             else{
@@ -552,17 +551,11 @@ std::tuple< std::vector<AncillaOutcome>,
                     psi_data[i_reduced] = psi[i_full];           
 
 
-
                 psi = Eigen::kroneckerProduct(psi_data, psi_anc).eval();
 
                 psi.normalize();
-
-                
-                // psi = psi_data.replicate(psi_plus_anc.size(), 1);
-                // psi *= std::pow(M_SQRT1_2, n_anc); //Normalize. M_SQRT1_2 is the inverse square root of 2              
                     
                 std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask,ZZ_mask); 
-
 
                 
                 total_time_for_Hads+=time_for_Had;
@@ -688,8 +681,7 @@ inline std::vector<uint8_t> get_outcome_per_rd(const std::vector<uint8_t>& anc_o
 
 
 //These are OK
-std::tuple<std::vector<std::vector<int>>,
-           std::vector<std::vector<int>>> get_parity_check_matrices(){
+std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_parity_check_matrices(){
 
     std::vector<std::vector<int>> Hz(4, std::vector<int>(9, 0));
 
@@ -881,14 +873,13 @@ std::tuple<std::vector<std::vector<int>>,
             if (Reset_ancilla==1){apply_X_on_qubits(psi , outcome_this_rd, n_data, dim, nQ);}
 
             if (rd != rds - 1) { 
-                Time t0H;
-                Time t0CNOT;
 
                 psi_data.setZero();
                 for (const auto& [i_full, i_reduced] : index_map)
                     psi_data[i_reduced] = psi[i_full];           
 
-                psi = Eigen::kroneckerProduct(psi_data, psi_anc).eval();
+                psi = Eigen::kroneckerProduct(psi_data, psi_anc).eval(); // |psi_data> \otimes |+>^{n_anc/2} \otimes |0>^{n_anc/2}
+
 
                 std::tie(t0H,t0CNOT)=reprepare_state(psi, d,  all_swaps,phase_mask, ZZ_mask); }
             
@@ -1150,4 +1141,287 @@ std::tuple<std::vector<std::vector<int>>,
 
 
 
+}
+
+
+std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_total_pcm(){
+
+    std::vector<std::vector<int>> Hx(8, std::vector<int>(9, 0));
+    //X part
+    H[0][0]=1;
+    H[0][3]=1;
+
+    H[1][1]=1;
+    H[1][2]=1;
+    H[1][4]=1;
+    H[1][5]=1;
+
+    H[2][3]=1;
+    H[2][4]=1;
+    H[2][6]=1;
+    H[2][7]=1;
+
+    H[3][5]=1;
+    H[3][8]=1;
+
+    //Z part
+    
+    H[4][1]=1;
+    H[4][2]=1;
+
+    H[5][0]=1;
+    H[5][1]=1;
+    H[5][3]=1;
+    H[5][4]=1;
+
+    H[6][4]=1;
+    H[6][5]=1;
+    H[6][7]=1;
+    H[6][8]=1;
+
+    H[7][6]=1;
+    H[7][7]=1;
+
+
+    return {H};
+
+
+}
+
+
+
+Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout,  bool Reset_ancilla){
+   
+    // Fixed values/vectors
+
+    const int n_anc  = d*d-1;
+    int n_anc_X = 4;
+    int n_anc_Z = 4;
+    const int n_data = d*d;    
+    const int nQ  = n_data+n_anc;
+
+    
+    std::vector<int>  idxs_data(n_data);
+    for (int i=0; i<n_data; ++i){ idxs_data[i]=i;}
+
+    std::vector<int> idxs_anc_X{9,10,11,12};
+    std::vector<int> idxs_anc_Z{13,14,15,16};
+    std::vector<int> idxs_anc{9,10,11,12,13,14,15,16};
+
+    std::vector<int> idxs_all(nQ);
+    for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
+
+    std::vector<int> shifted_anc_inds_X(n_anc_X);
+    std::vector<int> shifted_anc_inds_Z(n_anc_Z);
+    std::vector<int> shifted_anc_inds(n_anc);
+    
+    for (int i = 0; i < n_anc_X; ++i) {
+        shifted_anc_inds_X[i] = nQ - 1 - idxs_anc_X[i];
+    }    
+
+    for (int i = 0; i < n_anc_Z; ++i) {
+        shifted_anc_inds_Z[i] = nQ - 1 - idxs_anc_Z[i];
+    }    
+
+    for (int i=0; i<n_anc; ++i){
+        shifted_anc_inds[i] = nQ-1-idxs_anc[i];
+    }
+
+
+    std::vector<int> shifted_data_bits_from_d(n_data);
+    for (int i=0; i<n_data; ++i){
+        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
+    }
+
+
+    std::vector<int> data_positions;
+    data_positions.reserve(n_data);
+    std::vector<bool> is_anc(nQ, false);
+    for (int i : idxs_anc) {
+        is_anc[nQ - 1 - i] = true;
+    }
+
+    for (int bit = 0; bit < nQ; ++bit) {
+        if (!is_anc[bit]) {
+            data_positions.push_back(bit);
+        }
+    }    
+    
+
+    bool include_stab_reconstruction = true;    
+    int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
+    
+    std::vector<int>  idxs_data(n_data);
+    for (int i=0; i<d; ++i){ idxs_data[i]=i;}
+
+    std::vector<int> idxs_anc(n_anc);
+    for (int i = 0; i < n_anc; ++i) idxs_anc[i] = i + d;
+
+    std::vector<int> idxs_all(nQ);
+    for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
+
+    std::vector<int> shifted_anc_inds(n_anc);
+    
+    for (int i = 0; i < n_anc; ++i) {
+        shifted_anc_inds[i] = nQ - 1 - idxs_anc[i];
+    }    
+
+    std::vector<int> shifted_data_bits_from_d(n_data);
+    for (int i=0; i<n_data; ++i){
+        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
+    }
+
+    std::vector<int> data_positions;
+    data_positions.reserve(n_data);
+
+    std::vector<bool> is_anc(nQ, false);
+    for (int i : idxs_anc) {
+        is_anc[nQ - 1 - i] = true;
+    }
+
+    for (int bit = 0; bit < nQ; ++bit) {
+        if (!is_anc[bit]) {
+            data_positions.push_back(bit);
+        }
+    }    
+    
+    
+    std::vector<uint8_t> outcome_of_data(n_data); 
+    std::vector<uint8_t> outcome_this_rd(n_anc);
+    std::vector<uint8_t> ancilla_bitstring;
+
+    ancilla_bitstring.reserve(n_anc * rds_effective); 
+    
+    std::vector<std::pair<size_t, size_t>> all_swaps;
+    ArrayXc phase_mask;
+    ArrayXc ZZ_mask;
+    std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
+ 
+
+    const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
+    const Eigen::Index dim = psi0.size();    
+
+    std::vector<std::pair<int, int>> index_map = precompute_kept_index_map_for_ptrace_of_ancilla(n_anc, d);
+
+    std::unordered_map<uint64_t, std::vector<size_t>> kept_indices_cache; 
+
+    VectorXc psi;    
+    psi.resize(psi0.size());
+
+    VectorXc psi_data(1 << n_data);
+    std::vector<Real> cumsum_data(1<<n_data);
+    std::vector<Real> cdf_buffer_total(1<<nQ);
+
+    cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
+
+    VectorXc psi_buffer(psi0.size());
+
+    std::vector<std::vector<uint8_t>> all_data_outcomes;
+    all_data_outcomes.resize(ITERS);
+
+    
+    std::vector<std::vector<int>> Hx = get_total_pcm(); 
+    std::vector<std::vector<uint8_t>> batch;
+    batch.resize(ITERS);
+
+    VectorXc psi_plus_anc_X = plus_state(n_anc_X); 
+    VectorXc psi_anc_Z = Ket0(n_anc_Z);
+    VectorXc psi_anc = Eigen::kroneckerProduct(psi_plus_anc_X, psi_anc_Z).eval();
+
+
+    for (int iter=0; iter<ITERS; ++iter){
+
+        std::memcpy(psi.data(), psi0.data(), sizeof(Complex) * psi0.size());
+        ancilla_bitstring.clear(); //Reset
+
+        for (int r = 0; r < rds; ++r) {
+
+            if (r==0){
+                outcome_this_rd = measure_all_ancilla_first_rd(nQ, n_anc,  idxs_anc,  psi, kept_indices_cache, 
+                                                                shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
+            }
+            else{
+                outcome_this_rd = measure_all_ancilla(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
+            }
+
+            if (Reset_ancilla==1){
+
+                apply_X_on_qubits(psi, outcome_this_rd, n_data, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
+            }
+
+            // Store outcome
+            ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());
+
+            // Prepare state for next round, unless we are done with QEC rds 
+            if (r != rds - 1) {
+
+
+                psi_data.setZero();
+                for (const auto& [i_full, i_reduced] : index_map)
+                    psi_data[i_reduced] = psi[i_full];           
+
+
+                psi = Eigen::kroneckerProduct(psi_data, psi_anc).eval();
+
+                psi.normalize();
+                    
+                std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask,ZZ_mask); 
+
+            
+            }
+            
+        }
+
+        //Now measure data qubits
+
+        if (Reset_ancilla==1){
+
+            for (const auto& [i_full, i_reduced] : index_map)
+                psi_data[i_reduced] = psi[i_full];           
+            
+        }
+        else{
+            psi_data = discard_measured_qubits(psi, idxs_data, idxs_anc, outcome_this_rd, nQ); //Need to discard based on measurement outcomes
+        }
+        
+        psi_data.normalize();
+        apply_Hadamard_on_all_qubits(psi_data);
+
+
+        cumSum_from_state_vector(psi_data, cumsum_data);
+        
+        measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
+
+        all_data_outcomes[iter] = outcome_of_data;
+
+        if (include_stab_reconstruction==1){
+
+            for (int k=0; k<d-1; ++k){
+                ancilla_bitstring.push_back( outcome_of_data[k] ^ outcome_of_data[k+1]);
+            }
+        }
+
+        form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+
+
+        batch[iter] = ancilla_bitstring;
+
+    }
+
+    //Set an arbitrary weight for all probabilities (equal weights) 
+    std::vector<Real> p_space(rds_effective * n_data, 0.1); 
+    std::vector<Real> p_time(rds * n_anc, 0.1);
+    std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
+    
+    auto corrections = decode_with_pymatching_create_graph(Htot, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
+    
+    Real LER_sum = 0.0;
+    for(int iter=0; iter<ITERS; ++iter){
+        LER_sum += logical_XL_flipped(all_data_outcomes[iter], corrections[iter]) ? 1.0 : 0.0;
+    }
+
+    Real LER = LER_sum / ITERS;    
+   
+
+    return LER;
 }
