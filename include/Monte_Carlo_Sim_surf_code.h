@@ -15,4 +15,4 @@ std::tuple<std::vector<std::vector<int>>,
                                                                              int include_stab_reconstruction);
 
 
-Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real q_readout,  bool Reset_ancilla);                                                                             
+Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout,  bool Reset_ancilla);                                                                             
