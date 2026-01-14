@@ -465,6 +465,50 @@ std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_tot
 }
 
 
+inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
+                                                                                                        Real theta_data, Real theta_anc, Real theta_G){
+
+
+    /*
+    Precompute structures that remain constant for the QEC memory experiment.
+    
+    Input: 
+    d: distance of the repetition code
+    nQ: total # of qubits
+    n_anc: number of ancilla qubits
+    idxs_all: vector of all the qubit indices
+    theta_data: error angle for e^{-i\theta Z} operation for data qubits
+    theta_anc: error angle for e^{-i\theta Z} operation for ancilla qubits
+    theta_G: error angle for e^{i \theta ZZ} after CNOTs
+    
+    Output:
+    all_swaps: vector of pairs of indices to be swapped
+    phase_mask: phase mask for e^{-i\theta Z} errors
+    ZZ_mask: phase mask for e^{i \theta ZZ} CNOT errors
+    
+    */
+
+    //Precompute indices for SWAPs that implement CNOTs
+
+    int n_data = d*d; 
+    int n_anc  = d*d-1;
+
+
+    std::vector<std::pair<size_t, size_t>> all_swaps = find_CNOT_swaps_for_surface_code();
+
+    
+    std::vector<Real> thetas(n_data, theta_data);        //Same \theta angle for all data qubits
+    thetas.insert(thetas.end(), n_anc, theta_anc);  //Same \theta angle for all ancilla qubits 
+    
+    ArrayXc phase_mask = precompute_Rz_phase_mask(nQ, idxs_all,  thetas);
+
+
+    ArrayXc ZZ_mask = get_ZZ_phase_mask_for_surface_code(theta_G);
+
+
+    return std::make_tuple(all_swaps, phase_mask, ZZ_mask);
+}
+
 
 Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real q_readout,  bool Reset_ancilla){
    
@@ -598,7 +642,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     all_data_outcomes.resize(ITERS);
 
     
-    std::vector<std::vector<int>> Hx = get_total_pcm(); 
+    std::vector<std::vector<int>> H = get_total_pcm(); 
     std::vector<std::vector<uint8_t>> batch;
     batch.resize(ITERS);
 
@@ -633,6 +677,8 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
 
+                Time time_for_Had;
+                Time time_for_CNOT;
 
                 psi_data.setZero();
                 for (const auto& [i_full, i_reduced] : index_map)
@@ -691,7 +737,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     std::vector<Real> p_time(rds * n_anc, 0.1);
     std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
     
-    auto corrections = decode_with_pymatching_create_graph(Htot, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
+    auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
     
     Real LER_sum = 0.0;
     for(int iter=0; iter<ITERS; ++iter){
