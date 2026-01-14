@@ -130,31 +130,32 @@ ArrayXc compute_ZZ_phase_mask(int nQ, int q1, int q2, Real theta) {
 
 
 
+void apply_Hadamard_on_qubit_in_place(VectorXc& psi, int q) {
+    
+    const Eigen::Index dim = psi.size();
+    const int n = static_cast<int>(std::log2(dim));
+    const Eigen::Index flip_bit = 1LL << (n - 1 - q);
+   
+    Real inv_sqrt = static_cast<Real>(1.0 / std::sqrt(2.0));
+
+    for (Eigen::Index i = 0; i < dim; ++i) {
+        
+        if ((i & flip_bit) == 0) {
+            Eigen::Index j = i ^ flip_bit;
+
+            Complex temp_i = psi[i];
+            Complex temp_j = psi[j];
+            psi[i] = (temp_i + temp_j) * inv_sqrt;  // 1/sqrt(2)
+            psi[j] = (temp_i - temp_j) * inv_sqrt;
+        }
+    }
+
+}
+
 //------------------------- Unused ---------------------------------------------
 
 
-// void apply_Hadamard_on_qubit_in_place(VectorXc& psi, int q) {
-    
-//     const Eigen::Index dim = psi.size();
-//     const int n = static_cast<int>(std::log2(dim));
-//     const Eigen::Index flip_bit = 1LL << (n - 1 - q);
-    
-   
-//     Real inv_sqrt = static_cast<Real>(1.0 / std::sqrt(2.0));
 
-//     for (Eigen::Index i = 0; i < dim; ++i) {
-//         // Only apply once per pair (to avoid double updates)
-//         if ((i & flip_bit) == 0) {
-//             Eigen::Index j = i ^ flip_bit;
-
-//             Complex temp_i = psi[i];
-//             Complex temp_j = psi[j];
-//             psi[i] = (temp_i + temp_j) * inv_sqrt;  // 1/sqrt(2)
-//             psi[j] = (temp_i - temp_j) * inv_sqrt;
-//         }
-//     }
-
-// }
 
 // VectorXc apply_Hadamard_on_qubit(VectorXc& psi, int q) {
     

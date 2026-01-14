@@ -224,9 +224,23 @@ inline void apply_Rz_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qu
     }
 }
 
+
+inline void apply_Hadamard_on_qubits(VectorXc& psi, std::vector<int> & qubits){
+
+    for (int q: qubits){
+        apply_Hadamard_on_qubit_in_place(psi,  q);
+
+    }
+    
+}
+
+
+
+
 // void apply_Hadamard_on_qubit_in_place(VectorXc& psi, int q);
 
 // VectorXc apply_Hadamard_on_qubit(VectorXc& psi, int q);
 
 // VectorXc apply_Hadamard_on_qubits(VectorXc& psi, std::vector<int> inds);
+
 
