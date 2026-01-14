@@ -39,6 +39,14 @@ pybind11_add_module(sample_repetition_code
                     src/estimation_functions_rep_code.cpp 
                     src/Measurements.cpp )
 
+pybind11_add_module(sample_surface_code 
+                    src/bindings_surf_code.cpp 
+                    src/Monte_Carlo_Sim_surf_code.cpp 
+                    src/Unitary_Ops.cpp 
+                    src/Kets.cpp 
+                    src/call_to_pymatching.cpp 
+                    src/Measurements.cpp )
+
 # header-only libraries
 target_include_directories(sample_repetition_code
     PRIVATE
@@ -46,6 +54,14 @@ target_include_directories(sample_repetition_code
         ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen        
         ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
 )
+
+target_include_directories(sample_surface_code
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen        
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/pcg/include
+)
+
 
 #${CMAKE_CURRENT_SOURCE_DIR}/external/spectra/include
 

@@ -1190,7 +1190,7 @@ std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_tot
 
 
 
-Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout,  bool Reset_ancilla){
+Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real q_readout,  bool Reset_ancilla){
    
     // Fixed values/vectors
 
@@ -1199,6 +1199,8 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     int n_anc_Z = 4;
     const int n_data = d*d;    
     const int nQ  = n_data+n_anc;
+
+    Real theta_G = 0.0;
 
     
     std::vector<int>  idxs_data(n_data);
