@@ -708,9 +708,16 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     
     auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
     
+    
+
     Real LER_sum = 0.0;
-    for(int iter=0; iter<ITERS; ++iter){
-        LER_sum += logical_XL_flipped(all_data_outcomes[iter], corrections[iter]) ? 1.0 : 0.0;
+    for(int iter = 0; iter < ITERS; ++iter){
+        int parity = 0;
+        // Only use qubits 0, 1, 2 for logical X
+        for (int q = 0; q <= 2; ++q){
+            parity ^= (all_data_outcomes[iter][q] ^ corrections[iter][q]);
+        }
+        LER_sum += (parity != 0) ? 1.0 : 0.0;
     }
 
     Real LER = LER_sum / ITERS;    
