@@ -87,7 +87,6 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     
     
     
-    
     int n_data = d*d;
     int n_anc  = n_data-1;
     int nQ     = n_data+n_anc; 
@@ -101,7 +100,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     apply_Hadamard_on_qubits(psi,idxs_data);
     apply_Hadamard_on_qubits(psi,idxs_anc);
 
-    //Next we want to apply the Rz operator
+    //Next we want to apply the Rz operator only on X-type ancilla
     apply_precomputed_Rz_mask(psi, phase_mask);
     
     //Next we want to apply the CNOTs
@@ -113,7 +112,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     
     //apply_fast_hadamards_on_ancilla_qubits(psi,n_data,nQ);
 
-    apply_Hadamard_on_qubits(psi,idxs_anc);
+    apply_Hadamard_on_qubits(psi,idxs_anc); //Had again only on the X-type ancilla
 
     return psi;
 }
@@ -122,8 +121,8 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
                                                      const ArrayXc& phase_mask, 
                                                      const ArrayXc& ZZ_mask){ 
 
-    const int n_data = d*d;
-    const int n_anc  = n_data-1;                                                       
+    // const int n_data = d*d;
+    // const int n_anc  = n_data-1;                                                       
     
     Time time_for_Had = 0.0;
     Time time_for_CNOT = 0.0;
@@ -368,9 +367,6 @@ ArrayXc get_ZZ_phase_mask_for_surface_code(Real theta_G){
 
 
 
-
-
-
 //These are OK
 std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_parity_check_matrices(){
 
@@ -419,8 +415,9 @@ std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_par
 
 
 
-
+//TODO:  It has to be that i follow column-major order of first the X and then the Z-checks?
 std::vector<std::vector<int>> get_total_pcm(){
+
 
     std::vector<std::vector<int>> H(8, std::vector<int>(9, 0));
     //X part
@@ -514,15 +511,14 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
    
     // Fixed values/vectors
 
-    const int n_anc  = d*d-1;
     int n_anc_X = 4;
     int n_anc_Z = 4;
     const int n_data = d*d;    
+    const int n_anc  = n_data-1;
     const int nQ  = n_data+n_anc;
 
     Real theta_G = 0.0;
 
-    
     std::vector<int>  idxs_data(n_data);
     for (int i=0; i<n_data; ++i){ idxs_data[i]=i;}
 
@@ -533,17 +529,8 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     std::vector<int> idxs_all(nQ);
     for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
 
-    std::vector<int> shifted_anc_inds_X(n_anc_X);
-    std::vector<int> shifted_anc_inds_Z(n_anc_Z);
     std::vector<int> shifted_anc_inds(n_anc);
     
-    for (int i = 0; i < n_anc_X; ++i) {
-        shifted_anc_inds_X[i] = nQ - 1 - idxs_anc_X[i];
-    }    
-
-    for (int i = 0; i < n_anc_Z; ++i) {
-        shifted_anc_inds_Z[i] = nQ - 1 - idxs_anc_Z[i];
-    }    
 
     for (int i=0; i<n_anc; ++i){
         shifted_anc_inds[i] = nQ-1-idxs_anc[i];
@@ -554,7 +541,6 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     for (int i=0; i<n_data; ++i){
         shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
     }
-
 
     std::vector<int> data_positions;
     data_positions.reserve(n_data);
@@ -688,7 +674,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
 
         if (include_stab_reconstruction==1){
 
-            for (int k=0; k<d-1; ++k){
+            for (int k=0; k<n_data; ++k){
                 ancilla_bitstring.push_back( outcome_of_data[k] ^ outcome_of_data[k+1]);
             }
         }
