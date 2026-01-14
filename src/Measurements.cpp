@@ -7,9 +7,6 @@ using namespace Eigen;
 using std::vector;
 
 
-
-
-
 std::vector<std::pair<int,int>> precompute_kept_index_map_for_ptrace_of_ancilla(int n_anc, int n_data){
     /*
     Compute the indices we will keep in the state vector after tracing out the ancilla. The state vector is ordered as |psi,data, psi_ancilla>.

@@ -266,11 +266,12 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-     
+    std::vector<int> TargetsZ_2nd{14,13,15};     
     std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{1Z,3}, CNOT_{0Z,1}, CNOT_{2Z,7}
+    
 
     for (int i=0; i<3; ++i){
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_2nd[i], {TargetsZ_1st[i]}, nQ);
+        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_2nd[i], {TargetsZ_2nd[i]}, nQ);
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
@@ -511,6 +512,11 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
    
     // Fixed values/vectors
 
+    if (d>3){
+        throw std::invalid_argument("Cannot simulate d=5 surface code right now.");
+
+    }
+
     int n_anc_X = 4;
     int n_anc_Z = 4;
     const int n_data = d*d;    
@@ -522,9 +528,7 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     std::vector<int>  idxs_data(n_data);
     for (int i=0; i<n_data; ++i){ idxs_data[i]=i;}
 
-    std::vector<int> idxs_anc_X{9,10,11,12};
-    std::vector<int> idxs_anc_Z{13,14,15,16};
-    std::vector<int> idxs_anc{9,10,11,12,13,14,15,16};
+    std::vector<int> idxs_anc{9,10,11,12,13,14,15,16}; //First 4 are Xtype, next are Ztype
 
     std::vector<int> idxs_all(nQ);
     for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
@@ -560,8 +564,6 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
     int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
 
 
-
-    
     std::vector<uint8_t> outcome_of_data(n_data); 
     std::vector<uint8_t> outcome_this_rd(n_anc);
     std::vector<uint8_t> ancilla_bitstring;
@@ -638,14 +640,12 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
                 for (const auto& [i_full, i_reduced] : index_map)
                     psi_data[i_reduced] = psi[i_full];           
 
-
                 psi = Eigen::kroneckerProduct(psi_data, psi_anc).eval();
 
                 psi.normalize();
                     
-                std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask,ZZ_mask); 
+                std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask, ZZ_mask); 
 
-            
             }
             
         }
@@ -672,11 +672,22 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
 
         all_data_outcomes[iter] = outcome_of_data;
 
-        if (include_stab_reconstruction==1){
+        if (include_stab_reconstruction==1){ //To do: generalize for d=5?
+            
+            //First collect all the X-type outcomes
 
-            for (int k=0; k<n_data; ++k){
-                ancilla_bitstring.push_back( outcome_of_data[k] ^ outcome_of_data[k+1]);
-            }
+            ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
+            ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
+            ancilla_bitstring.push_back( outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7] );
+            ancilla_bitstring.push_back( outcome_of_data[5] ^ outcome_of_data[8] );
+
+
+            //Now collect all the Z-type outcomes
+            ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] );
+            ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[1] ^ outcome_of_data[3] ^ outcome_of_data[4] );
+            ancilla_bitstring.push_back( outcome_of_data[4] ^ outcome_of_data[5] ^ outcome_of_data[7] ^ outcome_of_data[8] );
+            ancilla_bitstring.push_back( outcome_of_data[6] ^ outcome_of_data[7] );
+
         }
 
         form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
