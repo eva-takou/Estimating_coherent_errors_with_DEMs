@@ -244,30 +244,30 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     // 4th:              CNOT_{1X,1}, CNOT_{2X,3},CNOT_{3X,5},   CNOT_{0,1Z},              CNOT_{4,2Z}, CNOT_{6,3Z}
 
 
-    std::vector<int> TargetsX_1st{3,5,7}; //1st: CNOT_{0X,3}, CNOT_{1X,5}, CNOT_{2X,7},
+    const std::vector<int> TargetsX_1st{3,5,7}; //1st: CNOT_{X0,3}, CNOT_{X1,5}, CNOT_{X2,7},
     
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(9+i,{TargetsX_1st[i]} , nQ);
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    std::vector<int> TargetsZ_1st{14, 13, 15}; //1st:  CNOT_{1Z,4}, CNOT_{0Z,2}, CNOT_{2Z,8}
-    std::vector<int> controlsZ_1st{4,2,8};
+    const std::vector<int> TargetsZ_1st{14, 13, 15}; //1st:  CNOT_{Z1,4}, CNOT_{Z0,2}, CNOT_{Z2,8}
+    const std::vector<int> controlsZ_1st{4,2,8};
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_1st[i], {TargetsZ_1st[i]}, nQ);
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    std::vector<int> TargetsX_2nd{0,2,4}; //2nd: CNOT_{0X,0}, CNOT_{1X,2}, CNOT_{2X,4},
+    const std::vector<int> TargetsX_2nd{0,2,4}; //2nd: CNOT_{X0,0}, CNOT_{X1,2}, CNOT_{X2,4},
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(9+i,{TargetsX_2nd[i]} , nQ);
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    std::vector<int> TargetsZ_2nd{14,13,15};     
-    std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{1Z,3}, CNOT_{0Z,1}, CNOT_{2Z,7}
+    const std::vector<int> TargetsZ_2nd{14,13,15};     
+    const std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{Z1,3}, CNOT_{Z0,1}, CNOT_{Z2,7}
     
 
     for (int i=0; i<3; ++i){
@@ -275,7 +275,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    std::vector<int> TargetsX_3rd{4,6,8};  // 3rd: CNOT_{1X,4}, CNOT_{2X,6},CNOT_{3X,8},  
+    const std::vector<int> TargetsX_3rd{4,6,8};  // 3rd: CNOT_{X1,4}, CNOT_{X2,6},CNOT_{X3,8},  
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(10+i,{TargetsX_3rd[i]} , nQ);
@@ -283,8 +283,8 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     }
 
    
-    std::vector<int> TargetsZ_3rd{14,15,16}; // 3rd:  CNOT_{1Z,1},  CNOT_{2Z,5}, CNOT_{3Z,7}    
-    std::vector<int> controlsZ_3rd{1,5,7}; 
+    const std::vector<int> TargetsZ_3rd{14,15,16}; // 3rd:  CNOT_{Z1,1},  CNOT_{Z2,5}, CNOT_{Z3,7}    
+    const std::vector<int> controlsZ_3rd{1,5,7}; 
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_3rd[i], {TargetsZ_3rd[i]} , nQ);
@@ -292,15 +292,15 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     }
 
     
-    std::vector<int> TargetsX_4th{1,3,5}; // 4th:   CNOT_{1X,1}, CNOT_{2X,3},CNOT_{3X,5},  
+    const std::vector<int> TargetsX_4th{1,3,5}; // 4th:   CNOT_{X1,1}, CNOT_{X2,3},CNOT_{X3,5},  
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(10+i,{TargetsX_4th[i]} , nQ);
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    std::vector<int> TargetsZ_4th{14,15,16}; // 4th:   CNOT_{1Z,0},   CNOT_{2Z,4}, CNOT_{3Z,6}
-    std::vector<int> controlsZ_4th{0,4,6}; 
+    const std::vector<int> TargetsZ_4th{14,15,16}; // 4th:   CNOT_{Z1,0},   CNOT_{Z2,4}, CNOT_{Z3,6}
+    const std::vector<int> controlsZ_4th{0,4,6}; 
 
     for (int i=0; i<3; ++i){
         std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_4th[i], {TargetsZ_4th[i]} , nQ);
@@ -323,8 +323,6 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     // std::vector<int> targets4{5,8};
     // swaps = precompute_CNOT_swaps(12,targets4 , nQ);
     // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-
 
     return all_swaps;
 }
@@ -617,9 +615,12 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
             if (r==0){
                 outcome_this_rd = measure_all_ancilla_first_rd(nQ, n_anc,  idxs_anc,  psi, kept_indices_cache, 
                                                                 shifted_anc_inds, data_positions, cdf_buffer_total,psi_buffer);
+
+                std::cout << "Measured first round of ancilla";                                                  
             }
             else{
                 outcome_this_rd = measure_all_ancilla(nQ,n_anc,idxs_anc,psi,kept_indices_cache, shifted_anc_inds, data_positions,psi_buffer);
+                std::cout << "Measured next ancilla rounds";                                                  
             }
 
             if (Reset_ancilla==1){
@@ -669,6 +670,8 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
         cumSum_from_state_vector(psi_data, cumsum_data);
         
         measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
+
+        std::cout << "Measured all data qubits";
 
         all_data_outcomes[iter] = outcome_of_data;
 
