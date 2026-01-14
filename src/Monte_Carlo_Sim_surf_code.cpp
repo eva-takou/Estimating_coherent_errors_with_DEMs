@@ -91,7 +91,6 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     int n_anc  = n_data-1;
     int nQ     = n_data+n_anc; 
     
-    
     VectorXc psi = Ket0(nQ);
 
     std::vector<int> idxs_data{0,1,2,3,4,5,6,7,8};
@@ -251,13 +250,13 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    const std::vector<int> TargetsZ_1st{14, 13, 15}; //1st:  CNOT_{Z1,4}, CNOT_{Z0,2}, CNOT_{Z2,8}
-    const std::vector<int> controlsZ_1st{4,2,8};
+    // const std::vector<int> TargetsZ_1st{14, 13, 15}; //1st:  CNOT_{Z1,4}, CNOT_{Z0,2}, CNOT_{Z2,8}
+    // const std::vector<int> controlsZ_1st{4,2,8};
 
-    for (int i=0; i<3; ++i){
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_1st[i], {TargetsZ_1st[i]}, nQ);
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    }
+    // for (int i=0; i<3; ++i){
+    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_1st[i], {TargetsZ_1st[i]}, nQ);
+    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    // }
 
     const std::vector<int> TargetsX_2nd{0,2,4}; //2nd: CNOT_{X0,0}, CNOT_{X1,2}, CNOT_{X2,4},
 
@@ -266,14 +265,14 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    const std::vector<int> TargetsZ_2nd{14,13,15};     
-    const std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{Z1,3}, CNOT_{Z0,1}, CNOT_{Z2,7}
+    // const std::vector<int> TargetsZ_2nd{14,13,15};     
+    // const std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{Z1,3}, CNOT_{Z0,1}, CNOT_{Z2,7}
     
 
-    for (int i=0; i<3; ++i){
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_2nd[i], {TargetsZ_2nd[i]}, nQ);
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    }
+    // for (int i=0; i<3; ++i){
+    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_2nd[i], {TargetsZ_2nd[i]}, nQ);
+    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    // }
 
     const std::vector<int> TargetsX_3rd{4,6,8};  // 3rd: CNOT_{X1,4}, CNOT_{X2,6},CNOT_{X3,8},  
 
@@ -283,13 +282,13 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     }
 
    
-    const std::vector<int> TargetsZ_3rd{14,15,16}; // 3rd:  CNOT_{Z1,1},  CNOT_{Z2,5}, CNOT_{Z3,7}    
-    const std::vector<int> controlsZ_3rd{1,5,7}; 
+    // const std::vector<int> TargetsZ_3rd{14,15,16}; // 3rd:  CNOT_{Z1,1},  CNOT_{Z2,5}, CNOT_{Z3,7}    
+    // const std::vector<int> controlsZ_3rd{1,5,7}; 
 
-    for (int i=0; i<3; ++i){
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_3rd[i], {TargetsZ_3rd[i]} , nQ);
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    }
+    // for (int i=0; i<3; ++i){
+    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_3rd[i], {TargetsZ_3rd[i]} , nQ);
+    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    // }
 
     
     const std::vector<int> TargetsX_4th{1,3,5}; // 4th:   CNOT_{X1,1}, CNOT_{X2,3},CNOT_{X3,5},  
@@ -299,30 +298,14 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     }
 
-    const std::vector<int> TargetsZ_4th{14,15,16}; // 4th:   CNOT_{Z1,0},   CNOT_{Z2,4}, CNOT_{Z3,6}
-    const std::vector<int> controlsZ_4th{0,4,6}; 
+    // const std::vector<int> TargetsZ_4th{14,15,16}; // 4th:   CNOT_{Z1,0},   CNOT_{Z2,4}, CNOT_{Z3,6}
+    // const std::vector<int> controlsZ_4th{0,4,6}; 
 
-    for (int i=0; i<3; ++i){
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_4th[i], {TargetsZ_4th[i]} , nQ);
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    }    
+    // for (int i=0; i<3; ++i){
+    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_4th[i], {TargetsZ_4th[i]} , nQ);
+    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    // }    
 
-    // std::vector<int> targets1{0,3};
-    // std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(9,targets1 , nQ);
-    // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-
-    // std::vector<int> targets2{1,2,4,5};
-    // swaps = precompute_CNOT_swaps(10,targets2 , nQ);
-    // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    
-    // std::vector<int> targets3{3,4,6,7};
-    // swaps = precompute_CNOT_swaps(11,targets3 , nQ);
-    // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-    // std::vector<int> targets4{5,8};
-    // swaps = precompute_CNOT_swaps(12,targets4 , nQ);
-    // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
     return all_swaps;
 }
@@ -527,7 +510,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     std::vector<int>  idxs_data(n_data);
     for (int i=0; i<n_data; ++i){ idxs_data[i]=i;}
 
-    std::vector<int> idxs_anc{9,10,11,12,13,14,15,16}; //First 4 are Xtype, next are Ztype
+    std::vector<int> idxs_anc{9,10,11,12, 13,14,15,16}; //First 4 are Xtype, next are Ztype
 
     std::vector<int> idxs_all(nQ);
     for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
