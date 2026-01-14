@@ -152,7 +152,7 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
     //Apply the Hadamards on ancilla
     t0 = Clock::now();
 
-    psi=apply_Hadamard_on_qubits(psi,idxs_anc);
+    apply_Hadamard_on_qubits(psi,idxs_anc);
     
 
     
@@ -490,8 +490,8 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
 
     //Precompute indices for SWAPs that implement CNOTs
 
-    int n_data = d*d; 
-    int n_anc  = d*d-1;
+    int n_data = nQ-n_anc; 
+    
 
 
     std::vector<std::pair<size_t, size_t>> all_swaps = find_CNOT_swaps_for_surface_code();
@@ -572,41 +572,9 @@ Real get_LER_from_uniform_DEM_phenom_level(int d, int rds, int ITERS, Real theta
 
     bool include_stab_reconstruction = true;    
     int rds_effective = rds + (include_stab_reconstruction ? 1 : 0);
-    
-    std::vector<int>  idxs_data(n_data);
-    for (int i=0; i<d; ++i){ idxs_data[i]=i;}
 
-    std::vector<int> idxs_anc(n_anc);
-    for (int i = 0; i < n_anc; ++i) idxs_anc[i] = i + d;
 
-    std::vector<int> idxs_all(nQ);
-    for (int i = 0; i < nQ; ++i) idxs_all[i] = i;
 
-    std::vector<int> shifted_anc_inds(n_anc);
-    
-    for (int i = 0; i < n_anc; ++i) {
-        shifted_anc_inds[i] = nQ - 1 - idxs_anc[i];
-    }    
-
-    std::vector<int> shifted_data_bits_from_d(n_data);
-    for (int i=0; i<n_data; ++i){
-        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
-    }
-
-    std::vector<int> data_positions;
-    data_positions.reserve(n_data);
-
-    std::vector<bool> is_anc(nQ, false);
-    for (int i : idxs_anc) {
-        is_anc[nQ - 1 - i] = true;
-    }
-
-    for (int bit = 0; bit < nQ; ++bit) {
-        if (!is_anc[bit]) {
-            data_positions.push_back(bit);
-        }
-    }    
-    
     
     std::vector<uint8_t> outcome_of_data(n_data); 
     std::vector<uint8_t> outcome_this_rd(n_anc);
