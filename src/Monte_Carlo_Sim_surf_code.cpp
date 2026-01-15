@@ -827,19 +827,21 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     //TODO: Fix the diagonal probs
 
+    std::vector<Real> p_space(rds_effective * n_data, 0.1); 
+    std::vector<Real> p_time;
+    std::vector<Real> p_diag(rds * (4-1), 0.0); 
+
     if (rds==1){
         //Need to change the Hmatrix, and pass only Hx
-        std::vector<Real> p_space(rds_effective * n_data, 0.1); 
-        std::vector<Real> p_time(rds * 4, 0.0);
-        std::vector<Real> p_diag(rds * (4-1), 0.0); 
+        
+        p_time(rds * 4, 0.0);
 
         H =  get_Hx_sc();
 
     }
     else{
-        std::vector<Real> p_space(rds_effective * n_data, 0.1); 
-        std::vector<Real> p_time(rds * n_anc, 0.0);
-        std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
+        
+        p_time(rds * n_anc, 0.0);
 
     }
     
