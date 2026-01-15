@@ -576,7 +576,7 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
     return std::make_tuple(all_swaps, phase_mask, ZZ_mask);
 }
 
-
+//TODO: Also not entirely sure, if I'm forming the defects correctly..
 Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout,  bool Reset_ancilla){
    
     // Fixed values/vectors
@@ -780,7 +780,20 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
         }
 
-        form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+        if (rds>1){ //use all n_anc
+            form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+        }
+        else{//Use half the ancilla (since we only store X-values)
+            form_defects(ancilla_bitstring,  4, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+        }
+
+        
+        
+        //I'm taking the indx1 = anc + n_anc * rd
+        //then       the indx2 = anc + n_anc * (rd-1)
+        //so if let's say we have only the X-type then
+        // rd=1, anc=0 -> indx1 = 4, indx2 = 0 
+        // rd=1, anc=1 -> indx1 = 5, indx2 = 1 (so looks correct)
 
 
         batch[iter] = ancilla_bitstring;
