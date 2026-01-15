@@ -237,26 +237,24 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     //Fig 18 from this paper: https://arxiv.org/pdf/1612.04795
     //Or follow basically stim's d=3 circuit, which is 
     
-    //NE for both XZ
-    //NW for X only
-    //SE for Z only
-    //SE for X only
-    //NW for Z only
-    //SW for X only
-    //SW for Z only
+    //NE for both XZ (Step 0)
+    //NW for X only (Step 1)
+    //SE for Z only (Step 2)
+    //SE for X only (Step 3)
+    //NW for Z only (Step 4)
+    //SW for X only (Step 5)
+    //SW for Z only (Step 6)
 
-    
     
     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
 
     std::vector<std::pair<size_t, size_t>> all_swaps;
     const int nQ=17;
 
-    //Start with all NE patterns (Step 0)
-
     int X_shift = 9;
     int Z_shift = 9+3;
 
+    //NE for both XZ (Step 0)
     auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+2,{6} , nQ); //X-type
@@ -264,11 +262,11 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     swaps = precompute_CNOT_swaps(X_shift+3,{8} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     
-    swaps = precompute_CNOT_swaps(1,{Z_shift+1} , nQ); //Z-type
+    swaps = precompute_CNOT_swaps(1,{Z_shift+0} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(3,{Z_shift+2} , nQ); //Z-type
+    swaps = precompute_CNOT_swaps(3,{Z_shift+1} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(7,{Z_shift+3} , nQ); //Z-type
+    swaps = precompute_CNOT_swaps(7,{Z_shift+2} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
 
