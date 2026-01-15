@@ -241,6 +241,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
 
     std::vector<std::pair<size_t, size_t>> all_swaps;
+    const int nQ=17;
 
     //Start with all NE patterns
 
