@@ -267,7 +267,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
     // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
-    auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
+    swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+2,{6} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
@@ -282,7 +282,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     // controls_3rd = [X0, X1, X2, 1, 3, 7]    
     // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
-    auto swaps = precompute_CNOT_swaps(X_shift+0,{0} , nQ); //X-type
+    swaps = precompute_CNOT_swaps(X_shift+0,{0} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+1,{2} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
@@ -297,7 +297,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     // controls_4th = [X0, X1, X2, 2, 4, 8]    
     // targets_4th = [3, 5, 7, Z0, Z1, Z2]
-    auto swaps = precompute_CNOT_swaps(X_shift+0,{3} , nQ); //X-type
+    swaps = precompute_CNOT_swaps(X_shift+0,{3} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+1,{5} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
@@ -309,8 +309,6 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(8,{Z_shift+2} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-
 
 
 
