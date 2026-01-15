@@ -833,15 +833,21 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     if (rds==1){
         //Need to change the Hmatrix, and pass only Hx
+
+        for (int i=0; i< rds * 4; ++i) {
+            p_time.push_back(0.0);
+        }        
         
-        p_time(rds * 4, 0.0);
 
         H =  get_Hx_sc();
 
     }
     else{
+
+        for (int i=0; i< rds * n_anc; ++i) {
+            p_time.push_back(0.0);
+        }                
         
-        p_time(rds * n_anc, 0.0);
 
     }
     
