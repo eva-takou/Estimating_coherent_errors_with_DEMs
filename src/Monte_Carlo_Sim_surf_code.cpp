@@ -235,68 +235,29 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
 //TODO: Do tests to make sure this is correct.
 std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
-    //Fig 18 from this paper: https://arxiv.org/pdf/1612.04795
-    //Or follow basically stim's d=3 circuit, which is 
-    
-    //NE for both XZ (Step 0)
-    //NW for X only (Step 1)
-    //SE for Z only (Step 2)
-    //SE for X only (Step 3)
-    //NW for Z only (Step 4)
-    //SW for X only (Step 5)
-    //SW for Z only (Step 6)
+    //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
 
-    
+    //Fix the stuff below...
+
     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
 
     std::vector<std::pair<size_t, size_t>> all_swaps;
     const int nQ=17;
 
+    // controls_1st = [X1, X2, X3, 0,4, 6]
+    // targets_1st  = [1, 3, 5, Z1, Z2, Z3]
+
+
     int X_shift = 9;   //X_shift+3 = 12 (9,10,11,12) Xchecks
     int Z_shift = 9+4; //9+4 = 13 (13,14,15,16) Zchecks
 
-    //NE for both XZ (Step 0)
-    auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{6} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+3,{8} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    
-    swaps = precompute_CNOT_swaps(1,{Z_shift+0} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(3,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(7,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-
-    //Now the NW for X only (Step 1)
-    swaps = precompute_CNOT_swaps(X_shift+1,{1} , nQ); //X-type
+    //Step 1
+    auto swaps = precompute_CNOT_swaps(X_shift+1,{1} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+2,{3} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(X_shift+3,{5} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-    //SE for Z only (Step 2)
-    swaps = precompute_CNOT_swaps(2,{Z_shift+0} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(4,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(8,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-    //SE for X only (Step 3)
-    swaps = precompute_CNOT_swaps(X_shift+0,{3} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+1,{5} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{7} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-
-    //NW for Z only (Step 4)
     swaps = precompute_CNOT_swaps(0,{Z_shift+1} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(4,{Z_shift+2} , nQ); //Z-type
@@ -304,15 +265,14 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     swaps = precompute_CNOT_swaps(6,{Z_shift+3} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
-    //SW for X only (Step 5)
-    swaps = precompute_CNOT_swaps(X_shift+0,{5} , nQ); //X-type
+    // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
+    // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
+    auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+1,{2} , nQ); //X-type
+    swaps = precompute_CNOT_swaps(X_shift+2,{6} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{4} , nQ); //X-type
+    swaps = precompute_CNOT_swaps(X_shift+3,{8} , nQ); //X-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-
-    //SW for Z only
     swaps = precompute_CNOT_swaps(1,{Z_shift+1} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
     swaps = precompute_CNOT_swaps(5,{Z_shift+2} , nQ); //Z-type
@@ -320,79 +280,39 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     swaps = precompute_CNOT_swaps(7,{Z_shift+3} , nQ); //Z-type
     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
- 
+    // controls_3rd = [X0, X1, X2, 1, 3, 7]    
+    // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
+    auto swaps = precompute_CNOT_swaps(X_shift+0,{0} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(X_shift+1,{2} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(X_shift+2,{4} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(1,{Z_shift+0} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(3,{Z_shift+1} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(7,{Z_shift+2} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
-    // const int nQ=17;
-    // std::vector<std::pair<size_t, size_t>> all_swaps;
+    // controls_4th = [X0, X1, X2, 2, 4, 8]    
+    // targets_4th = [3, 5, 7, Z0, Z1, Z2]
+    auto swaps = precompute_CNOT_swaps(X_shift+0,{3} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(X_shift+1,{5} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(X_shift+2,{7} , nQ); //X-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(2,{Z_shift+0} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(4,{Z_shift+1} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    swaps = precompute_CNOT_swaps(8,{Z_shift+2} , nQ); //Z-type
+    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
-    // 1st: CNOT_{0X,3}, CNOT_{1X,5}, CNOT_{2X,7},               CNOT_{4,1Z}, CNOT_{2,0Z}, CNOT_{8,2Z}
-    // 2nd: CNOT_{0X,0}, CNOT_{1X,2}, CNOT_{2X,4},               CNOT_{3,1Z}, CNOT_{1,0Z}, CNOT_{7,2Z}
-    // 3rd:              CNOT_{1X,4}, CNOT_{2X,6},CNOT_{3X,8},   CNOT_{1,1Z},              CNOT_{5,2Z}, CNOT_{7,3Z}    
-    // 4th:              CNOT_{1X,1}, CNOT_{2X,3},CNOT_{3X,5},   CNOT_{0,1Z},              CNOT_{4,2Z}, CNOT_{6,3Z}
 
 
-    // const std::vector<int> TargetsX_1st{3,5,7}; //1st: CNOT_{X0,3}, CNOT_{X1,5}, CNOT_{X2,7},
-    
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(9+i,{TargetsX_1st[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
 
-    // const std::vector<int> TargetsZ_1st{14, 13, 15}; //1st:  CNOT_{Z1,4}, CNOT_{Z0,2}, CNOT_{Z2,8}
-    // const std::vector<int> controlsZ_1st{4,2,8};
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_1st[i], {TargetsZ_1st[i]}, nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-    // const std::vector<int> TargetsX_2nd{0,2,4}; //2nd: CNOT_{X0,0}, CNOT_{X1,2}, CNOT_{X2,4},
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(9+i,{TargetsX_2nd[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-    // const std::vector<int> TargetsZ_2nd{14,13,15};     
-    // const std::vector<int> controlsZ_2nd{3,1,7}; // 2nd: CNOT_{Z1,3}, CNOT_{Z0,1}, CNOT_{Z2,7}
-    
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_2nd[i], {TargetsZ_2nd[i]}, nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-    // const std::vector<int> TargetsX_3rd{4,6,8};  // 3rd: CNOT_{X1,4}, CNOT_{X2,6},CNOT_{X3,8},  
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(10+i,{TargetsX_3rd[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-   
-    // const std::vector<int> TargetsZ_3rd{14,15,16}; // 3rd:  CNOT_{Z1,1},  CNOT_{Z2,5}, CNOT_{Z3,7}    
-    // const std::vector<int> controlsZ_3rd{1,5,7}; 
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_3rd[i], {TargetsZ_3rd[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-    
-    // const std::vector<int> TargetsX_4th{1,3,5}; // 4th:   CNOT_{X1,1}, CNOT_{X2,3},CNOT_{X3,5},  
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(10+i,{TargetsX_4th[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }
-
-    // const std::vector<int> TargetsZ_4th{14,15,16}; // 4th:   CNOT_{Z1,0},   CNOT_{Z2,4}, CNOT_{Z3,6}
-    // const std::vector<int> controlsZ_4th{0,4,6}; 
-
-    // for (int i=0; i<3; ++i){
-    //     std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps(controlsZ_4th[i], {TargetsZ_4th[i]} , nQ);
-    //     all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    // }    
 
 
     return all_swaps;
@@ -606,10 +526,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
    
     // Fixed values/vectors
 
-    if (d>3){
-        throw std::invalid_argument("Cannot simulate d=5 surface code right now.");
-
-    }
+    if (d>3){ throw std::invalid_argument("Cannot simulate d=5 surface code right now."); }
 
     int n_anc_X = 4;
     int n_anc_Z = 4;
@@ -792,15 +709,14 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             ancilla_bitstring.push_back( outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7] );
             ancilla_bitstring.push_back( outcome_of_data[5] ^ outcome_of_data[8] );
             
-            //Pad with extra 0s for the Z-type anc
+            //Pad with extra 0s for the Z-type anc (this helps the formation of defects)
+            //Note this is artificial, and we never actually use the last data qubit measurements to
+            //reconstruct Z-stabilizer values because we cannot do that (we run X-memory)
 
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
-
-
-
         }
 
         if (rds>1){ //use all n_anc
