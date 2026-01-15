@@ -785,31 +785,73 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
         if (include_stab_reconstruction==1){ 
             
-            //Reconstruct the X-type stabilizer measurements
+            //Reconstruct the X-type stabilizer measurements (because we do Z-basis)
 
             ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
             ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
             ancilla_bitstring.push_back( outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7] );
             ancilla_bitstring.push_back( outcome_of_data[5] ^ outcome_of_data[8] );
-
-
-            //Reconstruct the Z-type stabilizer measurements, only if rds>1 
-            //(because 1st round of Z-type measurements is random for X-memory)
             
-            if (rds>1){
-                ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] );
-                ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[1] ^ outcome_of_data[3] ^ outcome_of_data[4] );
-                ancilla_bitstring.push_back( outcome_of_data[4] ^ outcome_of_data[5] ^ outcome_of_data[7] ^ outcome_of_data[8] );
-                ancilla_bitstring.push_back( outcome_of_data[6] ^ outcome_of_data[7] );
-            }
+            //Pad with extra 0s for the Z-type anc
+
+            ancilla_bitstring.push_back(0);
+            ancilla_bitstring.push_back(0);
+            ancilla_bitstring.push_back(0);
+            ancilla_bitstring.push_back(0);
+
+
 
         }
 
         if (rds>1){ //use all n_anc
+
+            //This will be incorrect, because X-type ancilla have a distance of 2 rds instead of just 1 rd
+            //same for Z-type ancilla, + we postpone 1 round of detectors..
+
+            //So i have something like an array of outcomes 
+            //[X X X X , Z Z Z Z, X X X X, Z Z Z Z... ]
+            
+            //for Xdets, we let anc \in[n_anc_X]
+
+            //indx1 = anc + n_anc * rd, indx2 = anc + n_anc * (rd-1)
+            //So, w/ n_anc = 8
+            //if rd=1, anc=0 -> indx1 = 8, indx2 = 0 (OK)
+            //if rd=1, anc=1 -> indx1 = 9, indx2 = 1 (OK) ... etc so it seems ok
+
+            //for Zdets, we need to skip one round, so i think again we have
+            
+            //indx1 = anc + n_anc * rd, indx2 = anc + n_anc * (rd-1)
+            
+            //but now we start with rd=1, and we also have anc \in [n_anc_X,n_anc_X+n_anc_Z]
+            //for example, if we have anc = 4, and rd=1
+            //indx1 = 4 + 8*1 = 12, indx2 = 4 + 0 = 4 
+            //ok so we do the same, but we need to remove the 1st Z-round after,
+            //so it means we go to locations n_anc/2 till n_anc and just pop them out
+
+            //TODO: I think the Z-type need to end also 1 round sooner
+            //since there is no stabilizer reconstruction.
+
+            //We don't do stab reconstruction for final data qubit measurements
+            //to create Z-type stabs. But to ensure correct counting
+            //I should pad with extra 0s so i can apply the transformation
+            //and then remove the last entries
+
+            
             form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+
+            //Remove the last Z-round which we artificially put as 0s
+            ancilla_bitstring.resize(ancilla_bitstring.size() - n_anc/2);
+
+            //Remove the first Z-round now which is random.
+            ancilla_bitstring.erase(ancilla_bitstring.begin() + n_anc/2, ancilla_bitstring.begin() + n_anc);
+
+
         }
         else{//Use half the ancilla (since we only store X-values)
-            form_defects(ancilla_bitstring,  4, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+            
+            //because n_anc is the total number, and an int, then in c++ n_anc/2 will remain an int
+            //This is fine, we use only X-type ancilla, and bitxor directly w/ previous round outcomes
+            form_defects(ancilla_bitstring,  n_anc/2, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
         }
 
         
@@ -847,17 +889,20 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         for (int i=0; i< rds * n_anc; ++i) {
             p_time.push_back(0.0);
         }                
-        
 
     }
     
+    std::cout << "Rows,cols of pcm: " << H.size() << ", " << H[0].size() << "\n";
+    std::cout << "Rows,cols of batch: " << batch.size() << ", " << batch[0].size() << "\n";
     
     auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
-    
-    
 
     Real LER_sum = 0.0;
     for(int iter = 0; iter < ITERS; ++iter){
+
+        //We can do transversal measurement of all qubits to infer parity in the surface code
+        //Or just pick one of the logical as below
+
         int parity = 0;
         int logical_X_qubits[3] = {0, 3, 6}; // left column
         for (int q = 0; q < 3; ++q){
