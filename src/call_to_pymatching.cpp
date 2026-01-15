@@ -122,7 +122,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph(const std::vec
     //Now add the weights
     size_t n_anc     = H.size();               // number of anc  qubits
     size_t d         = H[0].size();           // number of data qubits
-    int virtual_node = rds*(d-1);            // We can use just one virtual node 
+    int virtual_node = rds*n_anc;            // We can use just one virtual node 
     
 
     //Add the time edges: they are ordered per round (no fault id for time edges)
