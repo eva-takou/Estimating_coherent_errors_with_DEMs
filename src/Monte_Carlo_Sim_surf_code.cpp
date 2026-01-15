@@ -252,7 +252,7 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     const int nQ=17;
 
     int X_shift = 9;
-    int Z_shift = 9+3;
+    int Z_shift = 9+4;
 
     //NE for both XZ (Step 0)
     auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
