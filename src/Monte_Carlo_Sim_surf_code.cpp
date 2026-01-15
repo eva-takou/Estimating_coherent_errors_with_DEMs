@@ -232,6 +232,7 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
 
 
 //This does the parallel zig-zag scheme (not entirely sure if I'm applying this correctly)
+//TODO: Do tests to make sure this is correct.
 std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     //Fig 18 from this paper: https://arxiv.org/pdf/1612.04795
@@ -251,8 +252,8 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     std::vector<std::pair<size_t, size_t>> all_swaps;
     const int nQ=17;
 
-    int X_shift = 9;
-    int Z_shift = 9+4;
+    int X_shift = 9;   //X_shift+3 = 12 (9,10,11,12) Xchecks
+    int Z_shift = 9+4; //9+4 = 13 (13,14,15,16) Zchecks
 
     //NE for both XZ (Step 0)
     auto swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
@@ -700,7 +701,18 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             }
 
             // Store outcome
-            ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());
+
+            //If it's only 1 round, then the Z-type measurements are random and should not be stored.
+            if (rds==1){
+                //Only 4 X-type measurements
+                for (int i=0; i< 4; ++i) {
+                    ancilla_bitstring.push_back(outcome_this_rd[i]);
+                }                
+            }
+            else{//Store everything
+                ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
+            }
+            
 
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
@@ -746,9 +758,9 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
         all_data_outcomes[iter] = outcome_of_data;
 
-        if (include_stab_reconstruction==1){ //To do: generalize for d=5?
+        if (include_stab_reconstruction==1){ 
             
-            //First collect all the X-type outcomes
+            //Reconstruct the X-type stabilizer measurements
 
             ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
             ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
@@ -756,11 +768,15 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             ancilla_bitstring.push_back( outcome_of_data[5] ^ outcome_of_data[8] );
 
 
-            //Now collect all the Z-type outcomes
-            ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] );
-            ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[1] ^ outcome_of_data[3] ^ outcome_of_data[4] );
-            ancilla_bitstring.push_back( outcome_of_data[4] ^ outcome_of_data[5] ^ outcome_of_data[7] ^ outcome_of_data[8] );
-            ancilla_bitstring.push_back( outcome_of_data[6] ^ outcome_of_data[7] );
+            //Reconstruct the Z-type stabilizer measurements, only if rds>1 
+            //(because 1st round of Z-type measurements is random for X-memory)
+            
+            if (rds>1){
+                ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] );
+                ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[1] ^ outcome_of_data[3] ^ outcome_of_data[4] );
+                ancilla_bitstring.push_back( outcome_of_data[4] ^ outcome_of_data[5] ^ outcome_of_data[7] ^ outcome_of_data[8] );
+                ancilla_bitstring.push_back( outcome_of_data[6] ^ outcome_of_data[7] );
+            }
 
         }
 
