@@ -482,6 +482,31 @@ std::tuple<std::vector<std::vector<int>>, std::vector<std::vector<int>>> get_par
 
 }
 
+std::vector<std::vector<int>> get_Hx_sc(){
+
+    std::vector<std::vector<int>> Hx(4, std::vector<int>(9, 0));
+
+    Hx[0][0]=1;
+    Hx[0][3]=1;
+
+    Hx[1][1]=1;
+    Hx[1][2]=1;
+    Hx[1][4]=1;
+    Hx[1][5]=1;
+
+    Hx[2][3]=1;
+    Hx[2][4]=1;
+    Hx[2][6]=1;
+    Hx[2][7]=1;
+
+    Hx[3][5]=1;
+    Hx[3][8]=1;
+
+ 
+    return Hx;
+
+
+}
 
 
 
@@ -800,10 +825,24 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     }
 
-    //Set an arbitrary weight for all probabilities (equal weights) 
-    std::vector<Real> p_space(rds_effective * n_data, 0.1); 
-    std::vector<Real> p_time(rds * n_anc, 0.0);
-    std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
+    //TODO: Fix the diagonal probs
+
+    if (rds==1){
+        //Need to change the Hmatrix, and pass only Hx
+        std::vector<Real> p_space(rds_effective * n_data, 0.1); 
+        std::vector<Real> p_time(rds * 4, 0.0);
+        std::vector<Real> p_diag(rds * (4-1), 0.0); 
+
+        H =  get_Hx_sc();
+
+    }
+    else{
+        std::vector<Real> p_space(rds_effective * n_data, 0.1); 
+        std::vector<Real> p_time(rds * n_anc, 0.0);
+        std::vector<Real> p_diag(rds * (n_anc-1), 0.0); 
+
+    }
+    
     
     auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
     
