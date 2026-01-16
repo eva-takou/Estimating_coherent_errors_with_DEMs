@@ -237,8 +237,6 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
 
-    //Fix the stuff below...
-
     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
 
     std::vector<std::pair<size_t, size_t>> all_swaps;
@@ -246,7 +244,6 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     // controls_1st = [X1, X2, X3, 0,4, 6]
     // targets_1st  = [1, 3, 5, Z1, Z2, Z3]
-
 
     int X_shift = 9;   //X_shift+3 = 12 (9,10,11,12) Xchecks
     int Z_shift = 9+4; //9+4 = 13 (13,14,15,16) Zchecks
