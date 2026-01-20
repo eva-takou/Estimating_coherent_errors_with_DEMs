@@ -492,7 +492,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         int indx2 = temp[2];
         Real p    = space_prob[0]; 
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -502,7 +502,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx1 = temp[1];
         indx2 = temp[2];
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
         
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
@@ -513,7 +513,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx1 = temp[1];
         indx2 = temp[3];
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
         
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
@@ -524,28 +524,28 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         //Boundary qubit checked by weight 2
         indx1 = temp[0];                                                
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));                                    
 
         //Boundary qubit checked by weight 2                       
         indx1 = temp[3];                                
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));       
 
         //2 Boundary qubits checked by weight 4    
         indx1 = temp[1];                                                                     
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));     
         
         //2 Boundary qubits checked by weight 4                                                       
         indx1 = temp[2];                                
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));       
@@ -563,7 +563,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         int indx2 = temp[1];
         Real p    = space_prob[0]; 
 
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -572,7 +572,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx1 = temp[1];
         indx2 = temp[2];
 
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
         
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
@@ -582,7 +582,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx1 = temp[2];
         indx2 = temp[3];
 
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
         
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
@@ -592,28 +592,28 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         //Boundary qubit checked by weight 2
         indx1 = temp[0];                                                
 
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));                                    
 
         //Boundary qubit checked by weight 2                       
         indx1 = temp[3];                                
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));       
 
         //2 Boundary qubits checked by weight 4    
         indx1 = temp[1];                                                                     
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));     
         
         //2 Boundary qubits checked by weight 4                                                       
         indx1 = temp[2];                                
-        std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
+        // std::cout << "Z Space edges, indx1: " << indx1 << " indx2: " << virtual_node << "\n";                
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                         py::arg("node2")=virtual_node,
                         py::arg("weight")=std::log((1.0 - p) / p));       
@@ -635,7 +635,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         int indx2 = temp_next_rd[1]; //D0-D5
         Real p    = space_prob[0]; 
 
-        std::cout << "X Diag Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "X Diag Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -645,7 +645,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx2 = temp_next_rd[2];  //D0-D6
         
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -655,7 +655,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx2 = temp_next_rd[3];  //D1-D7
         
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -666,7 +666,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx2 = temp_next_rd[1];  //D2-D5
         
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -676,7 +676,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         indx2 = temp_next_rd[3];  //D2-D7
         
 
-        std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+        // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
         decoder.attr("add_edge")(py::arg("node1")=indx1,
                                     py::arg("node2")=indx2,
@@ -700,7 +700,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             int indx2 = temp_next_rd[1]; //D0-D5
             Real p    = space_prob[0]; 
 
-            std::cout << "Z Diag Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+            // std::cout << "Z Diag Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
             decoder.attr("add_edge")(py::arg("node1")=indx1,
                                         py::arg("node2")=indx2,
@@ -710,7 +710,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             indx2 = temp_next_rd[2];  //D0-D6
             
 
-            std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+            // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
             decoder.attr("add_edge")(py::arg("node1")=indx1,
                                         py::arg("node2")=indx2,
@@ -720,7 +720,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             indx2 = temp_next_rd[2];  //D1-D6
             
 
-            std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+            // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
             decoder.attr("add_edge")(py::arg("node1")=indx1,
                                         py::arg("node2")=indx2,
@@ -731,7 +731,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             indx2 = temp_next_rd[3];  //D1-D7
             
 
-            std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+            // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
             decoder.attr("add_edge")(py::arg("node1")=indx1,
                                         py::arg("node2")=indx2,
@@ -741,7 +741,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             indx2 = temp_next_rd[3];  //D2-D7
             
 
-            std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
+            // std::cout << "Space edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
             decoder.attr("add_edge")(py::arg("node1")=indx1,
                                         py::arg("node2")=indx2,

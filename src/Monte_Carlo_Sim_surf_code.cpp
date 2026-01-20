@@ -781,11 +781,6 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
                 apply_X_on_qubits(psi, outcome_this_rd, n_data, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
             }
 
-            // for (int j = 0; j < outcome_this_rd.size(); ++j) {
-            //     std::cout << "Anc outcome j=" 
-            //             << static_cast<int>(outcome_this_rd[j]) 
-            //             << std::endl;
-            // }
             // Store outcome
 
             //If it's only 1 round, then the Z-type measurements are random and should not be stored.
@@ -847,34 +842,17 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         all_data_outcomes[iter] = outcome_of_data;
 
 
-        // for (int j = 0; j < outcome_of_data.size(); ++j) {
-        //     std::cout << "Data outcome j=" 
-        //             << static_cast<int>(outcome_of_data[j]) 
-        //             << std::endl;
-        // }
-        
 
 
         if (include_stab_reconstruction==1){ 
             
-            //Reconstruct the X-type stabilizer measurements (because we do Z-basis)
-
-            //    | 0X |  
-            //    0----3----6---
-            //    |    |    |
-            //    | 1Z | 2X | 3Z
-            // ---1----4----7--- 
-            //    |    |    |
-            // 0Z | 1X | 2Z |
-            // ---2----5----8
-            //         | 3X |
+            //Reconstruct the X-type stabilizer measurements
 
             std::cout << "data[0] ^ data[3]: " << static_cast<int>(outcome_of_data[0] ^ outcome_of_data[3]) << std::endl;
             std::cout << "data[1] ^ data[2] ^ data[4] ^ data[5]: " << static_cast<int>(outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5]) << std::endl;
             std::cout << "data[3] ^ data[4] ^ data[6] ^ data[7]: " << static_cast<int>(outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7]) << std::endl;
             std::cout << "data[5] ^ data[8]: " << static_cast<int>(outcome_of_data[5] ^ outcome_of_data[8]) << std::endl;
 
-       
 
             ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
             ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
@@ -894,43 +872,8 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
         if (rds>1){ //use all n_anc
 
-            //This will be incorrect, because X-type ancilla have a distance of 2 rds instead of just 1 rd
-            //same for Z-type ancilla, + we postpone 1 round of detectors..
-
-            //So i have something like an array of outcomes 
-            //[X X X X , Z Z Z Z, X X X X, Z Z Z Z... ]
-            
-            //for Xdets, we let anc \in[n_anc_X]
-
-            //indx1 = anc + n_anc * rd, indx2 = anc + n_anc * (rd-1)
-            //So, w/ n_anc = 8
-            //if rd=1, anc=0 -> indx1 = 8, indx2 = 0 (OK)
-            //if rd=1, anc=1 -> indx1 = 9, indx2 = 1 (OK) ... etc so it seems ok
-
-            //for Zdets, we need to skip one round, so i think again we have
-            
-            //indx1 = anc + n_anc * rd, indx2 = anc + n_anc * (rd-1)
-            
-            //but now we start with rd=1, and we also have anc \in [n_anc_X,n_anc_X+n_anc_Z]
-            //for example, if we have anc = 4, and rd=1
-            //indx1 = 4 + 8*1 = 12, indx2 = 4 + 0 = 4 
-            //ok so we do the same, but we need to remove the 1st Z-round after,
-            //so it means we go to locations n_anc/2 till n_anc and just pop them out
-
-            //TODO: I think the Z-type need to end also 1 round sooner
-            //since there is no stabilizer reconstruction.
-
-            //We don't do stab reconstruction for final data qubit measurements
-            //to create Z-type stabs. But to ensure correct counting
-            //I should pad with extra 0s so i can apply the transformation
-            //and then remove the last entries
-
-            std::cout << "Size of ancilla bitstring right before defect formation"<< ancilla_bitstring.size() << "\n";
-
             
             form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
-
-            std::cout << "Size of ancilla bitstring right after defect formation"<< ancilla_bitstring.size() << "\n";
 
             //Remove the last Z-round which we artificially put as 0s
             ancilla_bitstring.resize(ancilla_bitstring.size() - n_anc/2);
@@ -942,51 +885,21 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         }
         else{//Use half the ancilla (since we only store X-values)
 
-            for (int j = 0; j < ancilla_bitstring.size(); ++j) {
-                std::cout << "(Before forming stab outcome) j=" 
-                        << static_cast<int>(ancilla_bitstring[j]) 
-                        << std::endl;
-            }
-
          
             
             form_defects(ancilla_bitstring,  n_anc/2, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
 
-            std::cout << "Size of defects after formation:" << ancilla_bitstring.size()  << "\n";
         }
-
-            for (int j = 0; j < ancilla_bitstring.size(); ++j) {
-                std::cout << "(After forming defects) Defect j=" 
-                        << static_cast<int>(ancilla_bitstring[j]) 
-                        << std::endl;
-            }        
-        
-        //I'm taking the indx1 = anc + n_anc * rd
-        //then       the indx2 = anc + n_anc * (rd-1)
-        //so if let's say we have only the X-type then
-        // rd=1, anc=0 -> indx1 = 4, indx2 = 0 
-        // rd=1, anc=1 -> indx1 = 5, indx2 = 1 (so looks correct)
-
-        // std::cout<< "Size of anc bitstring:"<< ancilla_bitstring.size() << "\n";
-
-        // for (int j = 0; j < ancilla_bitstring.size(); ++j) {
-        //     std::cout << "Bitstring j=" << ancilla_bitstring[j] << std::endl;
-        // }
 
 
         batch[iter] = ancilla_bitstring;
 
         obs_flips.push_back(obs_this_rd);
 
-        
 
     }
 
-    for (int j = 0; j < obs_flips.size(); ++j) {
-        std::cout << "Obs flip=" 
-                << static_cast<int>(obs_flips[j]) 
-                << std::endl;
-    }          
+
 
     //TODO: Fix the diagonal probs
 
@@ -1000,9 +913,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         for (int i=0; i< rds * 4; ++i) {
             p_time.push_back(0.0);
         }        
-        
 
-        // H =  get_Hx_sc();
 
     }
     else{
@@ -1013,14 +924,10 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     }
     
-    // std::cout << "Rows,cols of pcm: " << H.size() << ", " << H[0].size() << "\n";
-    // std::cout << "Rows,cols of batch: " << batch.size() << ", " << batch[0].size() << "\n";
     
     auto corrections = decode_with_pymatching_create_graph_for_sc_XZ(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
 
-    for (int j = 0; j < corrections[0].size(); ++j) {
-        std::cout << "Correction j 1st iter=" << corrections[0][j] << std::endl;
-    }
+
 
     Real LER_sum = 0.0;
     for(int iter = 0; iter < ITERS; ++iter){
