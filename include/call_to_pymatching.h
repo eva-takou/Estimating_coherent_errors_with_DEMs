@@ -14,6 +14,15 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph(const std::vec
                                                                   const std::vector<Real>& diag_prob,
                                                                   const std::vector<std::vector<uint8_t>>& batch,int rds, 
                                                                   int include_stab_reconstruction);
+
+
+
+std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(const std::vector<std::vector<int>>& H, 
+                                                                  const std::vector<Real>& space_prob, 
+                                                                  const std::vector<Real>& time_prob,
+                                                                  const std::vector<Real>& diag_prob,
+                                                                  const std::vector<std::vector<uint8_t>>& batch,int rds, 
+                                                                  int include_stab_reconstruction)                                                                  
        
 
                                                              

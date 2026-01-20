@@ -362,32 +362,6 @@ std::tuple<std::vector<int>,std::vector<int>,std::vector<std::vector<int>>,std::
 
     X_det_inds_per_rd.push_back(tempX);
 
-    //Now, we want to add the space edges. Need to inspect each column of H and see if 2 checks, check the same qubit
-    //TODO: Will be useful to pass a transposed pcm so that we can pick the rows 
-
-    //Add bulk space edges manually for now
-    //TODO: Should probably be usefull to store all probabilities in the form of a dictionary.
-
-    for (int k=0; k<X_det_inds.size(); ++k){
-        std::cout << "X_INDS:" << X_det_inds[k] << "\n";
-
-    }
-
-    for (int k=0; k<Z_det_inds.size(); ++k){
-        std::cout << "Z_INDS:" << Z_det_inds[k] << "\n";
-
-    }    
-
-    for (int k=0; k<X_det_inds_per_rd.size(); ++k){
-
-        std::vector<int> temp = X_det_inds_per_rd[k];
-        
-        for (int l=0; l<temp.size(); ++l){
-            std::cout << "INDS:" << temp[l] << "\n";
-        }
-
-    }
-
     return std::make_tuple(X_det_inds,Z_det_inds,X_det_inds_per_rd,Z_det_inds_per_rd);
 
 }
@@ -467,8 +441,6 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
             int indx1 = dets_this_rd[m];
             int indx2 = dets_next_rd[m];
 
-            std::cout << "X Time edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
-
             Real p =  time_prob[cnt];
             if (p<1e-20){ p = 1e-20; }
 
@@ -480,8 +452,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
 
         }
     }
-    std::cout << "Added all X time edges w/o a problem" << "\n";
-    std::cout << "Size of Z_det_inds_per_rd:" << Z_det_inds_per_rd.size() << "\n";
+
     //Z-type time edges
     if (rds_eff>2){
         cnt=0;
@@ -494,8 +465,6 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
 
                 int indx1 = dets_this_rd[m];
                 int indx2 = dets_next_rd[m];
-
-                std::cout << "Z Time edges, indx1: " << indx1 << " indx2: " << indx2 << "\n";
 
                 Real p =  time_prob[cnt];
                 if (p<1e-20){ p = 1e-20; }
@@ -510,7 +479,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         }
     }
 
-    std::cout << "Added all time edges w/o a problem" << "\n";
+    
     
     //Xtype edges within the same time layer
     //Putting the fault ID as a vertical for the middle qubits (3,4,5) for the X_L operator
@@ -652,9 +621,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
 
     }
     
-    std::cout << "Added all space edges w/o a problem" << "\n";
-
-
+    
     //Add diagonal edges (space-time edges) for X-DEM only
     //Hard-coded for now, only for d=3. Assume errors on both X and Z checks, but check only what is flipped in the X-DEM (aka, comment out Z detectors in the stim's DEM)
     //Found from stim circuit, when we have 2-qubit error after each CNOT

@@ -231,8 +231,7 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
 //         | 12 |
 
 
-//This does the parallel zig-zag scheme (not entirely sure if I'm applying this correctly)
-//TODO: Do tests to make sure this is correct.
+//This should be correct.
 std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
@@ -242,76 +241,64 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     std::vector<std::pair<size_t, size_t>> all_swaps;
     const int nQ=17;
 
+    std::vector<int> X{9,10,11,12};
+    std::vector<int> Z{13,14,15,16};
+
     // controls_1st = [X1, X2, X3, 0,4, 6]
-    // targets_1st  = [1, 3, 5, Z1, Z2, Z3]
+    // targets_1st  = [1, 3, 5, Z1, Z2, Z3]    
 
-    int X_shift = 9;   //X_shift+3 = 12 (9,10,11,12) Xchecks
-    int Z_shift = 9+4; //9+4 = 13 (13,14,15,16) Zchecks
+    std::vector<int> controls{X[1],X[2],X[3],0,4,6};
+    std::vector<int> targets{1,3,5,Z[1],Z[2],Z[3]};
 
-    //Step 1
-    auto swaps = precompute_CNOT_swaps(X_shift+1,{1} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{3} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+3,{5} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(0,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(4,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(6,{Z_shift+3} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    for (int i =0; i<6; ++i){
+
+        auto swaps = precompute_CNOT_swaps(controls[i],{targets[i]} , nQ);
+        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+    }
+
+    std::vector<int> controls2{X[1],X[2],X[3],1,5,7};
+    std::vector<int> targets2{4,6,8,Z[1],Z[2],Z[3]};
 
     // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
     // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
-    swaps = precompute_CNOT_swaps(X_shift+1,{4} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{6} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+3,{8} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(1,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(5,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(7,{Z_shift+3} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+    for (int i =0; i<6; ++i){
+
+        auto swaps = precompute_CNOT_swaps(controls2[i],{targets2[i]} , nQ);
+        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+    }    
+
+
+    std::vector<int> controls3{X[0],X[1],X[2],1,3,7};
+    std::vector<int> targets3{0,2,4,Z[0],Z[1],Z[2]};
 
     // controls_3rd = [X0, X1, X2, 1, 3, 7]    
     // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
-    swaps = precompute_CNOT_swaps(X_shift+0,{0} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+1,{2} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{4} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(1,{Z_shift+0} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(3,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(7,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
+    for (int i =0; i<6; ++i){
+
+        auto swaps = precompute_CNOT_swaps(controls3[i],{targets3[i]} , nQ);
+        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+    }        
+
+
+    std::vector<int> controls4{X[0],X[1],X[2],2,4,8};
+    std::vector<int> targets4{3,5,7,Z[0],Z[1],Z[2]};
     // controls_4th = [X0, X1, X2, 2, 4, 8]    
     // targets_4th = [3, 5, 7, Z0, Z1, Z2]
-    swaps = precompute_CNOT_swaps(X_shift+0,{3} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+1,{5} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(X_shift+2,{7} , nQ); //X-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(2,{Z_shift+0} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(4,{Z_shift+1} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
-    swaps = precompute_CNOT_swaps(8,{Z_shift+2} , nQ); //Z-type
-    all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+    for (int i =0; i<6; ++i){
 
+        auto swaps = precompute_CNOT_swaps(controls4[i],{targets4[i]} , nQ);
+        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
 
-
+    }            
 
     return all_swaps;
 }
+
 
 //This is to apply ZZ errors after all gates (might not be the best, we should try other 2-qubit gate errors too.)
 ArrayXc get_ZZ_phase_mask_for_surface_code(Real theta_G){
@@ -516,8 +503,8 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
     return std::make_tuple(all_swaps, phase_mask, ZZ_mask);
 }
 
-//TODO: Also not entirely sure, if I'm forming the defects correctly..
-Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout,  bool Reset_ancilla){
+
+Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout, Real pz, bool Reset_ancilla){
    
     // Fixed values/vectors
 
@@ -528,6 +515,13 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     const int n_data = d*d;    
     const int n_anc  = n_data-1;
     const int nQ  = n_data+n_anc;
+
+    //Need to have correct capacity for this, depending on which qubits we want to apply it
+    std::vector<Real> prob_Z;
+    
+    for (int k=0; k<n_data; ++k){
+        prob_Z.push_back(pz);
+    }
 
     Real theta_G = 0.0;
     Real theta_anc = 0.0;
@@ -550,10 +544,11 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     std::vector<int> shifted_data_bits_from_d(n_data);
     for (int i=0; i<n_data; ++i){
-        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; //Note this is shift from d -- if the state vector has d qubits
+        shifted_data_bits_from_d[i] = n_data - 1 - idxs_data[i]; 
     }
 
     std::vector<int> data_positions;
+
     data_positions.reserve(n_data);
     std::vector<bool> is_anc(nQ, false);
     for (int i : idxs_anc) {
@@ -582,8 +577,9 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     ArrayXc ZZ_mask;
     std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
  
+    
 
-    const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
+    VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask, prob_Z);
     const Eigen::Index dim = psi0.size();    
 
     std::vector<std::pair<int, int>> index_map = precompute_kept_index_map_for_ptrace_of_ancilla(n_anc, n_data);
@@ -591,15 +587,15 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     std::unordered_map<uint64_t, std::vector<size_t>> kept_indices_cache; 
 
     VectorXc psi;    
-    psi.resize(psi0.size());
+    psi.resize(1<<nQ); //psi0.size()
 
     VectorXc psi_data(1 << n_data);
     std::vector<Real> cumsum_data(1<<n_data);
     std::vector<Real> cdf_buffer_total(1<<nQ);
 
-    cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
+    // cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
 
-    VectorXc psi_buffer(psi0.size());
+    VectorXc psi_buffer(1<<nQ); //psi0.size()
 
     std::vector<std::vector<uint8_t>> all_data_outcomes;
     all_data_outcomes.resize(ITERS);
@@ -613,9 +609,14 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     VectorXc psi_anc_Z = Ket0(n_anc_Z);
     VectorXc psi_anc = Eigen::kroneckerProduct(psi_plus_anc_X, psi_anc_Z).eval();
 
+    std::vector<int> obs_flips;
 
     for (int iter=0; iter<ITERS; ++iter){
+            
+        psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask, prob_Z);
 
+        cumSum_from_state_vector(psi0,cdf_buffer_total); //Use this for 1st round of measurements
+        
         std::memcpy(psi.data(), psi0.data(), sizeof(Complex) * psi0.size());
         ancilla_bitstring.clear(); //Reset
 
@@ -637,12 +638,17 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
                 apply_X_on_qubits(psi, outcome_this_rd, n_data, dim, nQ); //"Reset" the ancilla (more efficient than tracing out and starting again in |0>)
             }
 
+            // for (int j = 0; j < outcome_this_rd.size(); ++j) {
+            //     std::cout << "Anc outcome j=" 
+            //             << static_cast<int>(outcome_this_rd[j]) 
+            //             << std::endl;
+            // }
             // Store outcome
 
             //If it's only 1 round, then the Z-type measurements are random and should not be stored.
             if (rds==1){
                 //Only 4 X-type measurements
-                for (int i=0; i< 4; ++i) {
+                for (int i=0; i<4; ++i) {
                     ancilla_bitstring.push_back(outcome_this_rd[i]);
                 }                
             }
@@ -650,6 +656,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
                 ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
             }
             
+
 
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
@@ -665,7 +672,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
                 psi.normalize();
                     
-                std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask, ZZ_mask); 
+                std::tie(time_for_Had,time_for_CNOT) = reprepare_state(psi, d,  all_swaps, phase_mask, ZZ_mask, prob_Z); 
 
             }
             
@@ -684,20 +691,47 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         }
         
         psi_data.normalize();
-        apply_Hadamard_on_all_qubits(psi_data);
 
+        apply_Hadamard_on_all_qubits(psi_data);
 
         cumSum_from_state_vector(psi_data, cumsum_data);
         
-        measure_all_data(d,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
+        measure_all_data(n_data,shifted_data_bits_from_d,cumsum_data,outcome_of_data); 
 
-        
+        //Let's check if the observable was flipped
+        int obs_this_rd = outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[5];
 
         all_data_outcomes[iter] = outcome_of_data;
+
+
+        // for (int j = 0; j < outcome_of_data.size(); ++j) {
+        //     std::cout << "Data outcome j=" 
+        //             << static_cast<int>(outcome_of_data[j]) 
+        //             << std::endl;
+        // }
+        
+
 
         if (include_stab_reconstruction==1){ 
             
             //Reconstruct the X-type stabilizer measurements (because we do Z-basis)
+
+            //    | 0X |  
+            //    0----3----6---
+            //    |    |    |
+            //    | 1Z | 2X | 3Z
+            // ---1----4----7--- 
+            //    |    |    |
+            // 0Z | 1X | 2Z |
+            // ---2----5----8
+            //         | 3X |
+
+            std::cout << "data[0] ^ data[3]: " << static_cast<int>(outcome_of_data[0] ^ outcome_of_data[3]) << std::endl;
+            std::cout << "data[1] ^ data[2] ^ data[4] ^ data[5]: " << static_cast<int>(outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5]) << std::endl;
+            std::cout << "data[3] ^ data[4] ^ data[6] ^ data[7]: " << static_cast<int>(outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7]) << std::endl;
+            std::cout << "data[5] ^ data[8]: " << static_cast<int>(outcome_of_data[5] ^ outcome_of_data[8]) << std::endl;
+
+       
 
             ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
             ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
@@ -707,11 +741,12 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //Pad with extra 0s for the Z-type anc (this helps the formation of defects)
             //Note this is artificial, and we never actually use the last data qubit measurements to
             //reconstruct Z-stabilizer values because we cannot do that (we run X-memory)
-
+            if (rds>1){
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
             ancilla_bitstring.push_back(0);
+            }
         }
 
         if (rds>1){ //use all n_anc
@@ -747,8 +782,12 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //I should pad with extra 0s so i can apply the transformation
             //and then remove the last entries
 
+            std::cout << "Size of ancilla bitstring right before defect formation"<< ancilla_bitstring.size() << "\n";
+
             
             form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+
+            std::cout << "Size of ancilla bitstring right after defect formation"<< ancilla_bitstring.size() << "\n";
 
             //Remove the last Z-round which we artificially put as 0s
             ancilla_bitstring.resize(ancilla_bitstring.size() - n_anc/2);
@@ -759,13 +798,25 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
         }
         else{//Use half the ancilla (since we only store X-values)
+
+            for (int j = 0; j < ancilla_bitstring.size(); ++j) {
+                std::cout << "(Before forming stab outcome) j=" 
+                        << static_cast<int>(ancilla_bitstring[j]) 
+                        << std::endl;
+            }
+
+         
             
-            //because n_anc is the total number, and an int, then in c++ n_anc/2 will remain an int
-            //This is fine, we use only X-type ancilla, and bitxor directly w/ previous round outcomes
             form_defects(ancilla_bitstring,  n_anc/2, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
+
+            std::cout << "Size of defects after formation:" << ancilla_bitstring.size()  << "\n";
         }
 
-        
+            for (int j = 0; j < ancilla_bitstring.size(); ++j) {
+                std::cout << "(After forming defects) Defect j=" 
+                        << static_cast<int>(ancilla_bitstring[j]) 
+                        << std::endl;
+            }        
         
         //I'm taking the indx1 = anc + n_anc * rd
         //then       the indx2 = anc + n_anc * (rd-1)
@@ -773,10 +824,26 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         // rd=1, anc=0 -> indx1 = 4, indx2 = 0 
         // rd=1, anc=1 -> indx1 = 5, indx2 = 1 (so looks correct)
 
+        // std::cout<< "Size of anc bitstring:"<< ancilla_bitstring.size() << "\n";
+
+        // for (int j = 0; j < ancilla_bitstring.size(); ++j) {
+        //     std::cout << "Bitstring j=" << ancilla_bitstring[j] << std::endl;
+        // }
+
 
         batch[iter] = ancilla_bitstring;
 
+        obs_flips.push_back(obs_this_rd);
+
+        
+
     }
+
+    for (int j = 0; j < obs_flips.size(); ++j) {
+        std::cout << "Obs flip=" 
+                << static_cast<int>(obs_flips[j]) 
+                << std::endl;
+    }          
 
     //TODO: Fix the diagonal probs
 
@@ -792,7 +859,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         }        
         
 
-        H =  get_Hx_sc();
+        // H =  get_Hx_sc();
 
     }
     else{
@@ -803,10 +870,14 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
     }
     
-    std::cout << "Rows,cols of pcm: " << H.size() << ", " << H[0].size() << "\n";
-    std::cout << "Rows,cols of batch: " << batch.size() << ", " << batch[0].size() << "\n";
+    // std::cout << "Rows,cols of pcm: " << H.size() << ", " << H[0].size() << "\n";
+    // std::cout << "Rows,cols of batch: " << batch.size() << ", " << batch[0].size() << "\n";
     
-    auto corrections = decode_with_pymatching_create_graph(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
+    auto corrections = decode_with_pymatching_create_graph_for_sc_XZ(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
+
+    for (int j = 0; j < corrections[0].size(); ++j) {
+        std::cout << "Correction j 1st iter=" << corrections[0][j] << std::endl;
+    }
 
     Real LER_sum = 0.0;
     for(int iter = 0; iter < ITERS; ++iter){
@@ -815,10 +886,13 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         //Or just pick one of the logical as below
 
         int parity = 0;
-        int logical_X_qubits[3] = {0, 3, 6}; // left column
-        for (int q = 0; q < 3; ++q){
-            parity ^= (all_data_outcomes[iter][logical_X_qubits[q]] ^ corrections[iter][logical_X_qubits[q]]);
-        }
+        // int logical_X_qubits[3] = {0, 1,2}; // left column
+        parity ^= all_data_outcomes[iter][3] ^ corrections[iter][0]; //I select the middle qubits only
+        parity ^= all_data_outcomes[iter][4] ^ corrections[iter][1];
+        parity ^= all_data_outcomes[iter][5] ^ corrections[iter][2];
+        // for (int q = 0; q < 9; ++q){
+        //     parity ^= (all_data_outcomes[iter][q] ^ corrections[iter][q]);
+        // }
         LER_sum += (parity != 0) ? 1.0 : 0.0;
     }
 
