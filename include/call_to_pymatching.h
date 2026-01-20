@@ -22,7 +22,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
                                                                   const std::vector<Real>& time_prob,
                                                                   const std::vector<Real>& diag_prob,
                                                                   const std::vector<std::vector<uint8_t>>& batch,int rds, 
-                                                                  int include_stab_reconstruction)                                                                  
+                                                                  int include_stab_reconstruction);                                             
        
 
                                                              
