@@ -15,9 +15,9 @@ PYBIND11_MODULE(sample_surface_code, m) {
           py::arg("ITERS"),
           py::arg("theta_data"),
           py::arg("q_readout"),
+          py::arg("pz"),
           py::arg("Reset_ancilla"),
           "Run phenom memory QEC sim and return LER from uniform DEM");         
-
 
 }
 
