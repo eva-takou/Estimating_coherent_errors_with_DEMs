@@ -45,8 +45,7 @@ pybind11_add_module(sample_surface_code
                     src/Unitary_Ops.cpp 
                     src/Kets.cpp 
                     src/call_to_pymatching.cpp 
-                    src/Measurements.cpp 
-                    src/Stochastic_Ops.cpp)
+                    src/Measurements.cpp )
 
 # header-only libraries
 target_include_directories(sample_repetition_code
