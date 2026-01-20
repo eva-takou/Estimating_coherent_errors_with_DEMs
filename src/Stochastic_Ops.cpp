@@ -18,7 +18,7 @@ static std::mt19937 rng(std::random_device{}());
 using namespace Eigen;
 using std::vector;
 
-void apply_stochastic_Z_on_qubits(VectorXc& psi,int nQ, const std::vector<int>& qubits, const std::vector<Real>& prob_Z){
+void apply_stochastic_Z_on_qubits(VectorXc& psi, const std::vector<int>& qubits, const std::vector<Real>& prob_Z){
     
     std::vector<int> qubits_to_apply_Z;
 
