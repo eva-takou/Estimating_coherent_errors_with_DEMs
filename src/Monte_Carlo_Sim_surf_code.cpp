@@ -13,8 +13,10 @@
 #include "Kets.h"
 #include "Unitary_Ops.h"
 #include "call_to_pymatching.h"
+#include "Stochastic_Ops.h"
 #include "utils.h"
 #include <cstdint>
+
 
 
 #include <utility>
@@ -83,13 +85,15 @@ T clamp(const T& v, const T& lo, const T& hi) {
 
 VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_t>>& all_swaps, 
                                  const ArrayXc& phase_mask,
-                                 const ArrayXc& ZZ_mask) { 
+                                 const ArrayXc& ZZ_mask,
+                                 const std::vector<Real>& prob_Z) { 
     
     
     
     int n_data = d*d;
     int n_anc  = n_data-1;
     int nQ     = n_data+n_anc; 
+
     
     VectorXc psi = Ket0(nQ);
 
@@ -99,13 +103,15 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     apply_Hadamard_on_qubits(psi,idxs_data);
     apply_Hadamard_on_qubits(psi,idxs_anc);
 
+    apply_stochastic_Z_on_qubits(psi,idxs_data, prob_Z); //Test only on data for now
+
     //Next we want to apply the Rz operator only on X-type ancilla
-    apply_precomputed_Rz_mask(psi, phase_mask);
+    // apply_precomputed_Rz_mask(psi, phase_mask);
     
     //Next we want to apply the CNOTs
     apply_CNOTs_from_precomputed_swaps(all_swaps, psi);
 
-    apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
+    // apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
     
     //Finally we apply the Hadamards on the ancilla qubits only
     
@@ -118,10 +124,11 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
 
 inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::vector<std::pair<size_t, size_t>>& all_swaps,
                                                      const ArrayXc& phase_mask, 
-                                                     const ArrayXc& ZZ_mask){ 
-
-    // const int n_data = d*d;
-    // const int n_anc  = n_data-1;                                                       
+                                                     const ArrayXc& ZZ_mask,
+                                                     const std::vector<Real>& prob_Z){ 
+                                                  
+    
+    
     
     Time time_for_Had = 0.0;
     Time time_for_CNOT = 0.0;
@@ -130,7 +137,9 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
 
     // apply_fast_hadamards_on_ancilla_qubits(psi,d);
     
-    apply_precomputed_Rz_mask(psi, phase_mask);
+    // apply_precomputed_Rz_mask(psi, phase_mask);
+    std::vector<int> idxs_data{0,1,2,3,4,5,6,7,8};
+    apply_stochastic_Z_on_qubits(psi,idxs_data, prob_Z);                                                        
     
     auto t0 = Clock::now();
 
@@ -141,11 +150,7 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
     time_for_CNOT += Evaluate_Time(t1-t0).count();
     
     
-    // t0 = std::chrono::high_resolution_clock::now();
-    apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
-    // t1 = std::chrono::high_resolution_clock::now();
-    // std::cout << "Time for applying ZZ mask: " << std::chrono::duration<double>(t1 - t0).count() << "\n";
-    
+    // apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
 
     //Apply the Hadamards on ancilla
     t0 = Clock::now();
@@ -231,7 +236,8 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
 //         | 12 |
 
 
-//This should be correct.
+//This does the parallel zig-zag scheme (not entirely sure if I'm applying this correctly)
+//TODO: Do tests to make sure this is correct.
 std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
 
     //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
@@ -299,6 +305,143 @@ std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
     return all_swaps;
 }
 
+//This is for Z-only checks (seems that there is a problem for the Z only..)
+// std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
+
+//     //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
+
+//     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
+
+//     std::vector<std::pair<size_t, size_t>> all_swaps;
+//     const int nQ=17;
+
+//     std::vector<int> X{9,10,11,12};
+//     std::vector<int> Z{13,14,15,16};
+
+//     // controls_1st = [X1, X2, X3, 0,4, 6]
+//     // targets_1st  = [1, 3, 5, Z1, Z2, Z3]    
+
+//     std::vector<int> controls{0,4,6};
+//     std::vector<int> targets{Z[1],Z[2],Z[3]};
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls[i],{targets[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }
+
+//     std::vector<int> controls2{1,5,7};
+//     std::vector<int> targets2{Z[1],Z[2],Z[3]};
+
+//     // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
+//     // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls2[i],{targets2[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }    
+
+
+//     std::vector<int> controls3{1,3,7};
+//     std::vector<int> targets3{Z[0],Z[1],Z[2]};
+
+//     // controls_3rd = [X0, X1, X2, 1, 3, 7]    
+//     // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls3[i],{targets3[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }        
+
+
+//     std::vector<int> controls4{2,4,8};
+//     std::vector<int> targets4{Z[0],Z[1],Z[2]};
+//     // controls_4th = [X0, X1, X2, 2, 4, 8]    
+//     // targets_4th = [3, 5, 7, Z0, Z1, Z2]
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls4[i],{targets4[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }            
+
+//     return all_swaps;
+// }
+
+//This with CNOTs only for X stabs seems to work when there are no errors.
+//Something fails when I do the CNOTs for the Z stabs as well
+// std::vector<std::pair<size_t, size_t>> find_CNOT_swaps_for_surface_code(){
+
+//     //Following schedule pattern from this paper: https://arxiv.org/pdf/2511.06758
+
+//     //Note X-type ancilla are control qubits, Z-type ancilla are target qubits.
+
+//     std::vector<std::pair<size_t, size_t>> all_swaps;
+//     const int nQ=17;
+
+
+//     int X_shift = 9;   //X_shift+3 = 12 (9,10,11,12) Xchecks
+//     int Z_shift = 9+4; //9+4 = 13 (13,14,15,16) Zchecks
+
+//     // controls_1st = [X1, X2, X3, 0,4, 6]
+//     // targets_1st  = [1, 3, 5, Z1, Z2, Z3]    
+
+//     std::vector<int> controls{X_shift+1,X_shift+2,X_shift+3};
+//     std::vector<int> targets{1,3,5};
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls[i],{targets[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }
+
+//     std::vector<int> controls2{X_shift+1,X_shift+2,X_shift+3};
+//     std::vector<int> targets2{4,6,8};
+
+//     // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
+//     // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls2[i],{targets2[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }    
+
+
+//     std::vector<int> controls3{X_shift+0,X_shift+1,X_shift+2};
+//     std::vector<int> targets3{0,2,4};
+
+//     // controls_3rd = [X0, X1, X2, 1, 3, 7]    
+//     // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
+
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls3[i],{targets3[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }        
+
+
+//     std::vector<int> controls4{X_shift+0,X_shift+1,X_shift+2};
+//     std::vector<int> targets4{3,5,};
+//     // controls_4th = [X0, X1, X2, 2, 4, 8]    
+//     // targets_4th = [3, 5, 7, Z0, Z1, Z2]
+//     for (int i =0; i<3; ++i){
+
+//         auto swaps = precompute_CNOT_swaps(controls4[i],{targets4[i]} , nQ);
+//         all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end());
+
+//     }            
+
+//     return all_swaps;
+// }
 
 //This is to apply ZZ errors after all gates (might not be the best, we should try other 2-qubit gate errors too.)
 ArrayXc get_ZZ_phase_mask_for_surface_code(Real theta_G){
