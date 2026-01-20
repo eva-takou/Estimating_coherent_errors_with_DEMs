@@ -11,8 +11,7 @@
 #include "Unitary_Ops.h"
 
 #include <random>
-// std::random_device rd;
-// std::mt19937 rng(rd());
+
 static std::mt19937 rng(std::random_device{}());
 
 using namespace Eigen;
