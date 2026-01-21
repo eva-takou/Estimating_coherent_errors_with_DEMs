@@ -94,7 +94,7 @@ inline void apply_hadamards_on_ancilla_qubits_surf_code(VectorXc& psi, int d, in
     const int Z_anc_dim = 1 << n_anc/2;
 
     // Map state as 2D matrix: [ancilla_index][data_index]
-    Eigen::Map<MatrixXc> psi_matrix(psi.data(), ancilla_dim, data_dim); //interpret ancilla as rows so that we apply the transform only there
+    Eigen::Map<MatrixXc> psi_matrix(psi.data(), Z_anc_dim, data_and_X_anc_dim); //interpret ancilla as rows so that we apply the transform only there
     
     inplace_hadamard_on_rows(psi_matrix);
     
