@@ -70,3 +70,20 @@ inline std::tuple<std::vector<int>,std::vector<int>,std::vector<std::vector<int>
     return std::make_tuple(X_det_inds,Z_det_inds,X_det_inds_per_rd,Z_det_inds_per_rd);
 
 }
+
+struct ProbDictXZ {
+    ProbDict X;
+    ProbDict Z;
+
+    ProbDict& operator[](const std::string& type) {
+        if (type == "X") return X;
+        if (type == "Z") return Z;
+        throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
+    }
+
+    const ProbDict& operator[](const std::string& type) const {
+        if (type == "X") return X;
+        if (type == "Z") return Z;
+        throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
+    }
+};

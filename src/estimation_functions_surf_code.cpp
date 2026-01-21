@@ -38,22 +38,22 @@ struct ProbDict {
     std::unordered_map<std::vector<int>, double, VectorHash> values;
 };
 
-struct ProbDictXZ {
-    ProbDict X;
-    ProbDict Z;
+// struct ProbDictXZ {
+//     ProbDict X;
+//     ProbDict Z;
 
-    ProbDict& operator[](const std::string& type) {
-        if (type == "X") return X;
-        if (type == "Z") return Z;
-        throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
-    }
+//     ProbDict& operator[](const std::string& type) {
+//         if (type == "X") return X;
+//         if (type == "Z") return Z;
+//         throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
+//     }
 
-    const ProbDict& operator[](const std::string& type) const {
-        if (type == "X") return X;
-        if (type == "Z") return Z;
-        throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
-    }
-};
+//     const ProbDict& operator[](const std::string& type) const {
+//         if (type == "X") return X;
+//         if (type == "Z") return Z;
+//         throw std::invalid_argument("Invalid type, must be 'X' or 'Z'");
+//     }
+// };
 
 
 
