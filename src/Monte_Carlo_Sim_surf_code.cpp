@@ -117,9 +117,22 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     
     //Finally we apply the Hadamards on the ancilla qubits only
     
-    //apply_fast_hadamards_on_ancilla_qubits(psi,n_data,nQ);
-
+    auto t0 = Clock::now();                                    
     apply_Hadamard_on_qubits(psi,idxs_anc); //Had again only on the X-type ancilla
+    auto t1 = Clock::now();
+    Time t = Evaluate_Time(t1_ - t0_).count();
+    std::cout << "Time for old had:" << t << " (s).";
+
+
+    auto t0_ = Clock::now();
+    apply_hadamards_on_ancilla_typeX(psi, n_data,  n_anc/2, n_anc/2);
+    auto t1_ = Clock::now();
+    Time t_ = Evaluate_Time(t1_ - t0_).count();
+    std::cout << "Time for new had:" << t_ << " (s).";
+
+    
+    apply_Hadamard_on_qubits(psi,idxs_anc); 
+    
 
     return psi;
 }
@@ -859,10 +872,11 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //Note this is artificial, and we never actually use the last data qubit measurements to
             //reconstruct Z-stabilizer values because we cannot do that (we run X-memory)
             if (rds>1){
-            ancilla_bitstring.push_back(0);
-            ancilla_bitstring.push_back(0);
-            ancilla_bitstring.push_back(0);
-            ancilla_bitstring.push_back(0);
+                ancilla_bitstring.insert(ancilla_bitstring.end(), 4, 0);
+            // ancilla_bitstring.push_back(0);
+            // ancilla_bitstring.push_back(0);
+            // ancilla_bitstring.push_back(0);
+            // ancilla_bitstring.push_back(0);
             }
         }
 
