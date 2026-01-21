@@ -12,16 +12,15 @@
 
 using namespace Eigen;
 
-
-struct VectorHash {
-    std::size_t operator()(const std::vector<int>& v) const noexcept {
-        std::size_t h = 0;
-        for (int x : v) {
-            h ^= std::hash<int>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2);
-        }
-        return h;
-    }
-};
+// struct VectorHash {
+//     std::size_t operator()(const std::vector<int>& v) const noexcept {
+//         std::size_t h = 0;
+//         for (int x : v) {
+//             h ^= std::hash<int>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+//         }
+//         return h;
+//     }
+// };
 
 void print_key(const std::vector<int>& key) {
     std::cout << "(";

@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 #include <tuple>
+#include <unordered_map>  
+#include <string>         
+#include <stdexcept>      
+#include <cstddef>        
 
 inline std::tuple<std::vector<int>,std::vector<int>,std::vector<std::vector<int>>,std::vector<std::vector<int>>> build_X_and_Z_detector_indices(int n_anc, int rds_eff){
     //Build the X and Z detector indices.
@@ -70,6 +74,16 @@ inline std::tuple<std::vector<int>,std::vector<int>,std::vector<std::vector<int>
     return std::make_tuple(X_det_inds,Z_det_inds,X_det_inds_per_rd,Z_det_inds_per_rd);
 
 }
+
+struct VectorHash {
+    std::size_t operator()(const std::vector<int>& v) const noexcept {
+        std::size_t h = 0;
+        for (int x : v) {
+            h ^= std::hash<int>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        }
+        return h;
+    }
+};
 
 struct ProbDict {
     std::unordered_map<std::vector<int>, double, VectorHash> values;
