@@ -928,8 +928,11 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     bool include_higher_order = false; 
     bool print_higher_order = false;
     std::tie(p_space_o,p_time_o,p_bd_o,p_diag_o) = estimate_edges_surf_code(batch,  d,  n_anc, rds_effective, include_higher_order,  print_higher_order);
+    //Estimation of space bulk edges for only stochastic Z data errors is good.
 
     ProbDict p_space_X = p_space_o["X"];
+    ProbDict p_bd_X = p_bd_o["X"];
+    ProbDict p_time_X = p_time_o["X"];
 
     for (const auto& [key, val] : p_space_X.values) {
         std::cout << "key: [";
@@ -940,7 +943,27 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         std::cout << "] ";
         std::cout << "value: " << val << "\n";
     }
-    
+
+
+    for (const auto& [key, val] : p_time_X.values) {
+        std::cout << "key: [";
+        for (size_t i = 0; i < key.size(); ++i) {
+            std::cout << key[i];
+            if (i + 1 < key.size()) std::cout << ", ";
+        }
+        std::cout << "] ";
+        std::cout << "value: " << val << "\n";
+    }    
+
+    for (const auto& [key, val] : p_bd_X.values) {
+        std::cout << "key: [";
+        for (size_t i = 0; i < key.size(); ++i) {
+            std::cout << key[i];
+            if (i + 1 < key.size()) std::cout << ", ";
+        }
+        std::cout << "] ";
+        std::cout << "value: " << val << "\n";
+    }    
 
 
     
