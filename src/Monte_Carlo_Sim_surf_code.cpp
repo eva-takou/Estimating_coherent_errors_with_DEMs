@@ -15,6 +15,7 @@
 #include "call_to_pymatching.h"
 #include "Stochastic_Ops.h"
 #include "utils.h"
+#include "utils_sc.h"
 #include <cstdint>
 
 
@@ -917,7 +918,28 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
         }                
 
     }
+
+
+    ProbDictXZ p_space;
+    ProbDictXZ p_time;
+    ProbDictXZ p_bd;
+    ProbDictXZ p_diag;
+    std::tie(p_space,p_time,p_bd,p_diag) = estimate_edges_surf_code(batch,  d,  n_anc, rds, include_higher_order,  print_higher_order);
+
+    ProbDict p_space_X = p_space["X"];
+
+    for (const auto& [key, val] : p_space_X.values) {
+        std::cout << "key: [";
+        for (size_t i = 0; i < key.size(); ++i) {
+            std::cout << key[i];
+            if (i + 1 < key.size()) std::cout << ", ";
+        }
+        std::cout << "] ";
+        std::cout << "value: " << val << "\n";
+    }
     
+
+
     
     auto corrections = decode_with_pymatching_create_graph_for_sc_XZ(H, p_space, p_time, p_diag, batch, rds, include_stab_reconstruction);
 
