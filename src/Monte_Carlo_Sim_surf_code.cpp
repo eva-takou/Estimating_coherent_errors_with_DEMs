@@ -848,12 +848,6 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             
             //Reconstruct the X-type stabilizer measurements
 
-            std::cout << "data[0] ^ data[3]: " << static_cast<int>(outcome_of_data[0] ^ outcome_of_data[3]) << std::endl;
-            std::cout << "data[1] ^ data[2] ^ data[4] ^ data[5]: " << static_cast<int>(outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5]) << std::endl;
-            std::cout << "data[3] ^ data[4] ^ data[6] ^ data[7]: " << static_cast<int>(outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7]) << std::endl;
-            std::cout << "data[5] ^ data[8]: " << static_cast<int>(outcome_of_data[5] ^ outcome_of_data[8]) << std::endl;
-
-
             ancilla_bitstring.push_back( outcome_of_data[0] ^ outcome_of_data[3] );
             ancilla_bitstring.push_back( outcome_of_data[1] ^ outcome_of_data[2] ^ outcome_of_data[4] ^ outcome_of_data[5] );
             ancilla_bitstring.push_back( outcome_of_data[3] ^ outcome_of_data[4] ^ outcome_of_data[6] ^ outcome_of_data[7] );
