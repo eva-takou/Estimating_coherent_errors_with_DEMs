@@ -1128,10 +1128,14 @@ std::tuple<ProbDictXZ,ProbDictXZ,ProbDictXZ,ProbDictXZ> estimate_edges_surf_code
     ProbDict p_bd_Zdets;
 
     std::tie(p_space_Xdets,p_space_Zdets) = estimate_space_edges(eigen_batch, vi_mean, nsims,  four_point_probs, three_point_probs, X_det_inds_per_rd, Z_det_inds_per_rd);
+    std::cout << "Estimated space edges." << "\n";
     std::tie(p_time_Xdets,p_time_Zdets)   = estimate_time_edges(eigen_batch,  vi_mean,  nsims, four_point_probs, three_point_probs, X_det_inds_per_rd, Z_det_inds_per_rd);
+    std::cout << "Estimated time edges." << "\n";
     // std::tie(p_diag_Xdets,p_diag_Zdets)   = estimate_diag_edges(eigen_batch, vi_mean, nsims, n_stabs, rds,four_point_probs,three_point_probs);
     std::tie(p_bd_Xdets,p_bd_Zdets)       = estimate_bd_edges(vi_mean,  four_point_probs, three_point_probs, p_space_Xdets, p_space_Zdets, p_time_Xdets, p_time_Zdets,
                                                               p_diag_Xdets, p_diag_Zdets, X_det_inds_per_rd,  Z_det_inds_per_rd);
+
+    std::cout << "Estimated bd edges." << "\n";
     
 
     ProbDictXZ p_space;
