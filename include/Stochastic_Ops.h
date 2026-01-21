@@ -61,6 +61,7 @@ inline void apply_stochastic_X_on_qubits(VectorXc& psi, const std::vector<int>& 
 
     if (flip_mask == 0) return; 
 
+    const Eigen::Index dim = psi.size();
     
     for (Eigen::Index j = 0; j < dim; ++j) {
         Eigen::Index j_flip = j ^ flip_mask;
