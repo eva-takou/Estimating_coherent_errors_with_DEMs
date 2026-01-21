@@ -71,6 +71,10 @@ inline std::tuple<std::vector<int>,std::vector<int>,std::vector<std::vector<int>
 
 }
 
+struct ProbDict {
+    std::unordered_map<std::vector<int>, double, VectorHash> values;
+};
+
 struct ProbDictXZ {
     ProbDict X;
     ProbDict Z;

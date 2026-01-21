@@ -34,9 +34,9 @@ void print_key(const std::vector<int>& key) {
     std::cout << ")";
 }
 
-struct ProbDict {
-    std::unordered_map<std::vector<int>, double, VectorHash> values;
-};
+// struct ProbDict {
+//     std::unordered_map<std::vector<int>, double, VectorHash> values;
+// };
 
 // struct ProbDictXZ {
 //     ProbDict X;
