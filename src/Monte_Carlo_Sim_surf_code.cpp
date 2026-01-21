@@ -16,6 +16,7 @@
 #include "Stochastic_Ops.h"
 #include "utils.h"
 #include "utils_sc.h"
+#include "estimation_functions_surf_code.h"
 #include <cstdint>
 
 
