@@ -20,11 +20,13 @@ using std::vector;
 inline void apply_stochastic_Z_on_qubits(VectorXc& psi, const std::vector<int>& qubits, const std::vector<Real>& prob_Z){
     
     std::vector<int> qubits_to_apply_Z;
+    qubits_to_apply_Z.reserve(qubits.size());
 
     std::uniform_real_distribution<double> dist(0.0, 1.0);    
-    for (int q = 0; q < qubits.size(); ++q) {
-        double r = dist(rng);   
-        if (r < prob_Z[q]) {
+
+    for (size_t q = 0; q < qubits.size(); ++q) {
+        
+        if (dist(rng) < prob_Z[q]) {
             qubits_to_apply_Z.push_back(qubits[q]);
         }
     }
@@ -38,13 +40,12 @@ inline void apply_stochastic_Z_on_qubits(VectorXc& psi, const std::vector<int>& 
 inline void apply_stochastic_X_on_qubits(VectorXc& psi, const std::vector<int>& qubits, const std::vector<Real>& prob_X, int nQ){
     
     std::vector<int> qubits_to_apply_X;
-
+    qubits_to_apply_X.reserve(qubits.size());
     std::uniform_real_distribution<double> dist(0.0, 1.0);    
 
+    for (size_t q = 0; q < qubits.size(); ++q) {
 
-    for (int q = 0; q < qubits.size(); ++q) {
-        double r = dist(rng);   
-        if (r < prob_X[q]) {
+        if (dist(rng) < prob_X[q]) {
             qubits_to_apply_X.push_back(qubits[q]);
         }
     }
