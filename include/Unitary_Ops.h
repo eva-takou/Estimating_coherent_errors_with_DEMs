@@ -56,7 +56,8 @@ inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
 
 inline void apply_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
     /*
-    Apply Hadamard gates on the ancilla qubits only.
+    Apply Hadamard gates on the ancilla qubits only. Note the vector is treated as
+    psi_{data} \otimes psi_{anc} (order of states, doesnt mean the state has to be product)
 
     Input:
     psi: the state vector before the Hadamards
@@ -74,6 +75,24 @@ inline void apply_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
     
     inplace_hadamard_on_rows(psi_matrix);
     
+}
+
+inline void apply_hadamards_on_ancilla_typeX(VectorXc& psi,int n_data, int n_anc1,int n_anc2) {
+    /*
+    Apply Hadamards on specific ancilla qubits. Note the vector is treated as
+    psi_{data} \otimes psi_{anc_X} \otimes \psi_{anc Z} (order of states, doesnt mean the state has to be product),
+    i.e., for a surface code we have the X-type and then the Z-type ancilla, and we want
+    to apply the Hadamards on the X-type ancilla.
+    
+    */
+    const int data_dim = 1 << n_data;
+    const int anc1_dim = 1 << n_anc1;
+    const int anc2_dim = 1 << n_anc2;
+
+    // Map: rows = anc1, cols = anc2 ⊗ data
+    Eigen::Map<MatrixXc> psi_matrix(psi.data(), anc1_dim, anc2_dim * data_dim);
+
+    inplace_hadamard_on_rows(psi_matrix);
 }
 
 
