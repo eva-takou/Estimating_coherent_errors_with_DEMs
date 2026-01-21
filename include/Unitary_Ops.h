@@ -53,12 +53,12 @@ inline void inplace_hadamard_on_rows(Eigen::MatrixBase<Derived>& M) {
     }
 }
 
-
+//USED FOR REPETITION CODE
 inline void apply_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
     /*
     Apply Hadamard gates on the ancilla qubits only. Note the vector is treated as
     psi_{data} \otimes psi_{anc} (order of states, doesnt mean the state has to be product)
-
+    
     Input:
     psi: the state vector before the Hadamards
     d: distance of the repetition code
@@ -76,24 +76,31 @@ inline void apply_hadamards_on_ancilla_qubits(VectorXc& psi, int d) {
     inplace_hadamard_on_rows(psi_matrix);
     
 }
-
-inline void apply_hadamards_on_ancilla_typeX(VectorXc& psi,int n_data, int n_anc1,int n_anc2) {
+//Under development.
+inline void apply_hadamards_on_ancilla_qubits_surf_code(VectorXc& psi, int d, int n_anc) {
     /*
-    Apply Hadamards on specific ancilla qubits. Note the vector is treated as
-    psi_{data} \otimes psi_{anc_X} \otimes \psi_{anc Z} (order of states, doesnt mean the state has to be product),
-    i.e., for a surface code we have the X-type and then the Z-type ancilla, and we want
-    to apply the Hadamards on the X-type ancilla.
+    Need to assume a fictitious thing where data + anc_X are treated in columns
+    Last ancilla are Z (to revert hadamards)
     
+    Input:
+    psi: the state vector before the Hadamards
+    d: distance of the surface_code
+
+    Output (in-place):
+    psi: the state vector after the Hadamards
     */
-    const int data_dim = 1 << n_data;
-    const int anc1_dim = 1 << n_anc1;
-    const int anc2_dim = 1 << n_anc2;
 
-    // Map: rows = anc1, cols = anc2 ⊗ data
-    Eigen::Map<MatrixXc> psi_matrix(psi.data(), anc1_dim, anc2_dim * data_dim);
+    const int data_and_X_anc_dim    = 1 << ((d*d)+n_anc/2); //Assume
+    const int Z_anc_dim = 1 << n_anc/2;
 
+    // Map state as 2D matrix: [ancilla_index][data_index]
+    Eigen::Map<MatrixXc> psi_matrix(psi.data(), ancilla_dim, data_dim); //interpret ancilla as rows so that we apply the transform only there
+    
     inplace_hadamard_on_rows(psi_matrix);
+    
 }
+
+
 
 
 
