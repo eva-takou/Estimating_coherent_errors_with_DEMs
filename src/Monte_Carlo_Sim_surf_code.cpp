@@ -117,11 +117,11 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     
     //Finally we apply the Hadamards on the ancilla qubits only
     
-    auto t0 = Clock::now();                                    
-    apply_Hadamard_on_qubits(psi,idxs_anc); //Had again only on the X-type ancilla
-    auto t1 = Clock::now();
-    Time t = Evaluate_Time(t1 - t0).count();
-    std::cout << "Time for old had:" << t << " (s).";
+    // auto t0 = Clock::now();                                    
+    // apply_Hadamard_on_qubits(psi,idxs_anc); //Had again only on the X-type ancilla
+    // auto t1 = Clock::now();
+    // Time t = Evaluate_Time(t1 - t0).count();
+    // std::cout << "Time for old had:" << t << " (s).";
 
 
     auto t0_ = Clock::now();
@@ -131,7 +131,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     std::cout << "Time for new had:" << t_ << " (s).";
 
     
-    apply_Hadamard_on_qubits(psi,idxs_anc); 
+    // apply_Hadamard_on_qubits(psi,idxs_anc); 
     
 
     return psi;
