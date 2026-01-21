@@ -617,29 +617,33 @@ std::tuple<ProbDict,ProbDict> estimate_time_edges(const Eigen::Array<bool, Eigen
     }    
     
     // Z-type time edges
-    for (size_t k=0; k<Z_det_inds_per_rd.size()-1; ++k){
+    if (Z_det_inds_per_rd.size()>=2){
 
-        const auto& dets_this_rd = Z_det_inds_per_rd[k];
-        const auto& dets_next_rd = Z_det_inds_per_rd[k+1];
+        for (size_t k=0; k<Z_det_inds_per_rd.size()-1; ++k){
 
-        
-        for (int m=0; m<dets_next_rd.size(); ++m){
+            const auto& dets_this_rd = Z_det_inds_per_rd[k];
+            const auto& dets_next_rd = Z_det_inds_per_rd[k+1];
 
-            int indx1 = dets_this_rd[m];
-            int indx2 = dets_next_rd[m];
+            
+            for (int m=0; m<dets_next_rd.size(); ++m){
 
-            Real p = get_prob_pij(eigen_batch, vi_mean, indx1, indx2,  nsims);   
+                int indx1 = dets_this_rd[m];
+                int indx2 = dets_next_rd[m];
 
-            lower_order_key[0] = indx1;
-            lower_order_key[1] = indx2;
+                Real p = get_prob_pij(eigen_batch, vi_mean, indx1, indx2,  nsims);   
 
-            p = redefine_lowest_order_prob(lower_order_key, p, four_point_probs); //lower_order_key
-            p = redefine_lowest_order_prob(lower_order_key, p, three_point_probs); //lower_order_key
+                lower_order_key[0] = indx1;
+                lower_order_key[1] = indx2;
 
-            p_time_Zdets.values[lower_order_key] = p;
+                p = redefine_lowest_order_prob(lower_order_key, p, four_point_probs); //lower_order_key
+                p = redefine_lowest_order_prob(lower_order_key, p, three_point_probs); //lower_order_key
 
-        }
-    }    
+                p_time_Zdets.values[lower_order_key] = p;
+
+            }
+        }    
+    }
+
     
     return std::make_tuple(p_time_Xdets,p_time_Zdets);
 }
