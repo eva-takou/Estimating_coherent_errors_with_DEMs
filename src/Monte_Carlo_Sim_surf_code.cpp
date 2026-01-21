@@ -86,10 +86,7 @@ T clamp(const T& v, const T& lo, const T& hi) {
 
 
 VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_t>>& all_swaps, 
-                                 const ArrayXc& phase_mask,
-                                 const ArrayXc& ZZ_mask,
-                                 const std::vector<Real>& prob_Z) { 
-    
+                                const ArrayXc& phase_mask, const ArrayXc& ZZ_mask, const std::vector<Real>& prob_Z) { 
     
     
     int n_data = d*d;
@@ -102,8 +99,18 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
     std::vector<int> idxs_data{0,1,2,3,4,5,6,7,8};
     std::vector<int> idxs_anc{9,10,11,12}; //X-type ancilla, measuring Z-type errors
 
-    apply_Hadamard_on_qubits(psi,idxs_data);
-    apply_Hadamard_on_qubits(psi,idxs_anc);
+    // apply_Hadamard_on_qubits(psi,idxs_data);
+    // apply_Hadamard_on_qubits(psi,idxs_anc);
+
+    apply_Hadamard_on_all_qubits(psi); //fast 
+    apply_hadamards_on_ancilla_qubits_surf_code(psi,d,n_anc);
+    //reapply Had on Z type qubits (identity)
+
+
+
+    //Apply the fast hadamard on all qubits, then re-apply the Hadamard on the Z-type qubits
+    //to cancel it out.
+
 
     apply_stochastic_Z_on_qubits(psi,idxs_data, prob_Z); //Test only on data for now
 
