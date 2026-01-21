@@ -924,7 +924,9 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
     ProbDictXZ p_time;
     ProbDictXZ p_bd;
     ProbDictXZ p_diag;
-    std::tie(p_space,p_time,p_bd,p_diag) = estimate_edges_surf_code(batch,  d,  n_anc, rds, include_higher_order,  print_higher_order);
+    bool include_higher_order = false; 
+    bool print_higher_order = false;
+    std::tie(p_space,p_time,p_bd,p_diag) = estimate_edges_surf_code(batch,  d,  n_anc, rds_effective, include_higher_order,  print_higher_order);
 
     ProbDict p_space_X = p_space["X"];
 
