@@ -166,18 +166,6 @@ inline void apply_precomputed_ZZ_mask(VectorXc& psi, const ArrayXc& phase_mask) 
 
 inline void apply_precomputed_Rz_mask(VectorXc& psi, const ArrayXc& phase_mask) {
     
-    // auto* p = psi.data();
-    // auto* m = phase_mask.data();
-    // const size_t N = psi.size();
-    // for (size_t i = 0; i < N; ++i) {
-    //     const Real re = p[i].real();
-    //     const Real im = p[i].imag();
-    //     const Real mr = m[i].real();
-    //     const Real mi = m[i].imag();
-    //     p[i].real(re * mr - im * mi);
-    //     p[i].imag(re * mi + im * mr);
-    // }    
-
     psi.array() *= phase_mask;
 }
 
@@ -212,6 +200,31 @@ inline void apply_X_on_qubits(VectorXc& psi, const std::vector<uint8_t>& outcome
         Eigen::Index j_flip = j ^ flip_mask;
         if (j < j_flip) {
             std::swap(psi[j], psi[j_flip]);
+        }
+    }
+}
+
+
+inline void apply_Rx_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
+    //Note the convention: this does e^{-i\theta * X}
+    const Eigen::Index dim = psi.size();
+    const int nQ = static_cast<int>(std::log2(dim));
+    const Complex I(0,1);
+    const Complex cos_t = std::cos(theta);
+    const Complex sin_t = std::sin(theta);
+
+    for (int q : qubits) {
+        uint64_t mask = 1ULL << (nQ - 1 - q);  //MSB order
+
+        for (Eigen::Index i = 0; i < dim; ++i) {
+            if ((i & mask) == 0) {  //apply only for bit q=1
+                Eigen::Index i0 = i;
+                Eigen::Index i1 = i | mask;
+                Complex a0 = psi[i0];
+                Complex a1 = psi[i1];
+                psi[i0] = cos_t * a0 - I * sin_t * a1;
+                psi[i1] = -I * sin_t * a0 + cos_t * a1;
+            }
         }
     }
 }
