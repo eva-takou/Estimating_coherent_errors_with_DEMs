@@ -350,7 +350,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
     py::object decoder = Matching();
     size_t n_anc     = H.size();      // number of anc  qubits
     size_t n_data    = H[0].size();   // number of data qubits
-    int virtual_node = virtual_node = (rds_eff*n_anc/2 + (rds_eff-2)*n_anc/2);    //If rds_eff = 2, then 2*4 = 8, so virtual node is correct.
+    int virtual_node = virtual_node = (rds_eff*n_anc/2 + (rds_eff-1)*n_anc/2);    //If rds_eff = 2, then 2*4 = 8, so virtual node is correct.
 
     //Get the detector indices:
     std::vector<int> X_det_inds;
@@ -383,8 +383,9 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         }
     }
 
+
     //Z-type time edges
-    if (rds_eff>2){
+    if (Z_det_inds_per_rd.size()>1){
         cnt=0;
         for (int k=0; k<Z_det_inds_per_rd.size()-1; ++k){
             
@@ -409,7 +410,6 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
         }
     }
 
-    
     
     //Xtype edges within the same time layer
     //Putting the fault ID as a vertical for the middle qubits (3,4,5) for the X_L operator
@@ -483,6 +483,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
 
     }
 
+
     //Ztype edges within the same time layer
     for (int k=0; k<Z_det_inds_per_rd.size(); ++k){
 
@@ -550,7 +551,7 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
 
 
     }
-    
+
     
     //Add diagonal edges (space-time edges) for X-DEM only
     //Hard-coded for now, only for d=3. Assume errors on both X and Z checks, but check only what is flipped in the X-DEM (aka, comment out Z detectors in the stim's DEM)
@@ -615,11 +616,12 @@ std::vector<std::vector<int>> decode_with_pymatching_create_graph_for_sc_XZ(cons
                             
     }
 
+
     //Add diagonal edges (space-time edges) for Z-DEM only
     //The question is should we put the space-time edges assuming the Z-DEM w/o errors on the X-part (so restricting to what fires in the 
     //Z-type detectors when there is noise everywhere).
     //The following is hard-coded for now, so it's applicable for d=3 only.
-    if (rds_eff>2){
+    if (Z_det_inds_per_rd.size()>1){
         for (int k=0; k<Z_det_inds_per_rd.size()-1; ++k){
             
             std::vector<int> temp         = Z_det_inds_per_rd[k];
