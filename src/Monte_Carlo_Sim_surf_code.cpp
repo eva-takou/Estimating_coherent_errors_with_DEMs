@@ -580,22 +580,22 @@ inline std::tuple<Time,Time> reprepare_state(VectorXc &psi, int d,  const std::v
     std::vector<int> idxs_data{0,1,2,3,4,5,6,7,8};
     // apply_stochastic_Z_on_qubits(psi,idxs_data, prob_Z);                                                        
     
-    auto t0 = Clock::now();
+    // auto t0 = Clock::now();
 
     apply_CNOTs_from_precomputed_swaps(all_swaps, psi);
     
     // apply_precomputed_ZZ_mask(psi, ZZ_mask); //ZZ-errors after the CNOTs
 
     //Apply the Hadamards on ancilla
-    t0 = Clock::now();
+    // t0 = Clock::now();
 
     apply_Hadamard_on_qubits(psi,idxs_anc);
     
 
     
-    t1 = Clock::now();
+    // t1 = Clock::now();
 
-    time_for_Had += Evaluate_Time(t1 - t0).count();
+    // time_for_Had += Evaluate_Time(t1 - t0).count();
 
     return {time_for_Had,time_for_CNOT};
 
