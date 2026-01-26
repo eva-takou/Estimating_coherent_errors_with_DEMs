@@ -768,6 +768,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //     ancilla_bitstring.insert(ancilla_bitstring.end(), 4, 0);
 
             // }
+            
         }
 
             form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
