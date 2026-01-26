@@ -229,6 +229,29 @@ inline void apply_Rx_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qu
     }
 }
 
+inline void apply_Ry_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
+    //Note the convention: this does e^{-i\theta * Y}
+    const Eigen::Index dim = psi.size();
+    const int nQ = static_cast<int>(std::log2(dim));
+    const Complex I(0,1);
+    const Complex cos_t = std::cos(theta);
+    const Complex sin_t = std::sin(theta);
+
+    for (int q : qubits) {
+        uint64_t mask = 1ULL << (nQ - 1 - q);  //MSB order
+
+        for (Eigen::Index i = 0; i < dim; ++i) {
+            if ((i & mask) == 0) {  //apply only for bit q=1
+                Eigen::Index i0 = i;
+                Eigen::Index i1 = i | mask;
+                Complex a0 = psi[i0];
+                Complex a1 = psi[i1];
+                psi[i0] = cos_t * a0 -  sin_t * a1;
+                psi[i1] = sin_t * a0 + cos_t * a1;
+            }
+        }
+    }
+}
 
 inline void apply_Rz_on_qubits_inplace(VectorXc& psi, const std::vector<int>& qubits, Real theta) {
     /*
