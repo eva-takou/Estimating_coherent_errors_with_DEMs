@@ -690,20 +690,6 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
              ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
 
-            //If it's only 1 round, then the Z-type measurements are random and should not be stored.
-            // if (rds==1){
-                
-            //     //Append only X-type measurements
-            //     ancilla_bitstring.insert(ancilla_bitstring.end(),outcome_this_rd.begin(),outcome_this_rd.begin() + 4 );                
-                
-      
-                
-            // }
-            // else{//Store everything
-            //     ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
-            // }
-            
-
 
             // Prepare state for next round, unless we are done with QEC rds 
             if (r != rds - 1) {
@@ -763,10 +749,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //reconstruct Z-stabilizer values because we cannot do that (we run X-memory)
 
             ancilla_bitstring.insert(ancilla_bitstring.end(), 4, 0);
-            // if (rds>1){
-            //     ancilla_bitstring.insert(ancilla_bitstring.end(), 4, 0);
 
-            // }
 
         }
 
@@ -775,30 +758,8 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //Remove the last Z-round which we artificially put as 0s
             ancilla_bitstring.resize(ancilla_bitstring.size() - n_anc/2);
 
-        // if (rds>1){ //use all n_anc
-
-            
-        //     form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
-
-        //     //Remove the last Z-round which we artificially put as 0s
-        //     ancilla_bitstring.resize(ancilla_bitstring.size() - n_anc/2);
-
-        //     //Remove the first Z-round now which is random.
-        //     ancilla_bitstring.erase(ancilla_bitstring.begin() + n_anc/2, ancilla_bitstring.begin() + n_anc);
-
-
-        // }
-        // else{//Use half the ancilla (since we only store X-values)
-
-         
-        //     form_defects(ancilla_bitstring,  n_anc/2, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
-        //     // form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
-
-        // }
-
 
         batch[iter] = ancilla_bitstring;
-
 
 
     }
