@@ -688,21 +688,20 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
 
             // Store outcome
 
+             ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
+
             //If it's only 1 round, then the Z-type measurements are random and should not be stored.
-            if (rds==1){
+            // if (rds==1){
                 
-                //Append only X-type measurements
-                ancilla_bitstring.insert(ancilla_bitstring.end(),outcome_this_rd.begin(),outcome_this_rd.begin() + 4 );                
+            //     //Append only X-type measurements
+            //     ancilla_bitstring.insert(ancilla_bitstring.end(),outcome_this_rd.begin(),outcome_this_rd.begin() + 4 );                
                 
-                for (int i=0; i<4; ++i) {
-                    ancilla_bitstring.push_back(outcome_this_rd[i]);
+      
                 
-                }          
-                
-            }
-            else{//Store everything
-                ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
-            }
+            // }
+            // else{//Store everything
+            //     ancilla_bitstring.insert(ancilla_bitstring.end(), outcome_this_rd.begin(), outcome_this_rd.end());    
+            // }
             
 
 
@@ -768,7 +767,7 @@ Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Rea
             //     ancilla_bitstring.insert(ancilla_bitstring.end(), 4, 0);
 
             // }
-            
+
         }
 
             form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
