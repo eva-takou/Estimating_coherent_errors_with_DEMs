@@ -14,12 +14,16 @@ def sample(theta_data,theta_anc, theta_G, rds,ITERS):
     Sample detection events and observable flips for d=3 rotated surface code.
     The error model is e^{-i\theta *Z} on data + ancilla and e^{i\theta ZZ} after each CNOT.
 
-    Input:
+    Inputs:
         theta_data: the rotation angle for data qubits
         theta_anc: the rotation angle for ancilla qubits
         theta_G: the gate rotation angle
         rds: the # of QEC rounds
         ITERS: number of times to repeat the Monte Carlo sim
+
+    Outputs:
+        det_events: detection events 0/1 (# of ITERS x # of detectors)
+        obs_flips: whether or not the logical was flipped (determined by last data qubit measurements)
     '''    
     
     q_readout  = 0
