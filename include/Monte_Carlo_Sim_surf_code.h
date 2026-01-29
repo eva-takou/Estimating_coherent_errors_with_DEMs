@@ -1,8 +1,6 @@
 #pragma once
-
 #include <vector>
 #include <tuple>
-
 #include "PrecisionOfTypes.h"
 
 
@@ -15,4 +13,7 @@ std::tuple<std::vector<std::vector<int>>,
                                                                              int include_stab_reconstruction);
 
 
-Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real q_readout, Real pz,  bool Reset_ancilla);                                                                             
+Real get_LER_from_uniform_DEM_code_capacity_level(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout);
+
+
+std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_detection_events(int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout);

@@ -14,10 +14,21 @@ PYBIND11_MODULE(sample_surface_code, m) {
           py::arg("rds"),
           py::arg("ITERS"),
           py::arg("theta_data"),
+          py::arg("theta_anc"),
+          py::arg("theta_G"),
           py::arg("q_readout"),
-          py::arg("pz"),
-          py::arg("Reset_ancilla"),
-          "Run phenom memory QEC sim and return LER from uniform DEM");         
+          "Run phenom memory QEC sim and return LER from uniform DEM");   
+          
+          
+    m.def("sample_detection_events",
+          &sample_detection_events,
+          py::arg("rds"),
+          py::arg("ITERS"),
+          py::arg("theta_data"),
+          py::arg("theta_anc"),
+          py::arg("theta_G"),
+          py::arg("q_readout"),
+          "Return the detection events & observable flips after e^{-i\theta Z} and e^{-i\theta ZZ} errors.");             
 
 }
 
