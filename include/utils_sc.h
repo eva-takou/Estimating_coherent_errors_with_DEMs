@@ -382,7 +382,7 @@ inline std::vector<std::vector<std::vector<int>>> cnot_schedule_for_rsc(int d){
 
     }
 
-    std::vector<std::vector<std::vector<int>>> CNOT_layers{CNOT_NW,CNOT_NE,CNOT_SE,CNOT_SW};
+    std::vector<std::vector<std::vector<int>>> CNOT_layers{CNOT_NW,CNOT_NE,CNOT_SW,CNOT_SE};
 
     return CNOT_layers;
 }
