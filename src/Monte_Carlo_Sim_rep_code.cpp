@@ -709,7 +709,7 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
     std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers =  get_CNOTs_as_swap_layers(d);
 
     // const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
-    const VectorXc psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  theta_G);
+    const VectorXc psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  swap_layers, theta_G);
     const Eigen::Index dim = psi0.size();    
 
     std::vector<std::pair<int, int>> index_map = precompute_kept_index_map_for_ptrace_of_ancilla(n_anc, d);
