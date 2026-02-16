@@ -272,7 +272,7 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 
 
 inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::pair<size_t, size_t>> &all_swaps,
-                                                  const std::vector<ArrayXc>& all_ZZ_masks){ 
+                                                  const Real theta_G){ 
     /*
     Re-prepare the state for every QEC round. The input state needs to be in |\psi>_{data} \otimes |+>_{ancilla}.
     Input:
@@ -471,9 +471,6 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
             ? prepare_pre_meas_state_for_circuit_level(d, phase_mask, theta_G)
             : prepare_pre_meas_state(d, all_swaps, phase_mask, ZZ_mask);
 
-    
-
-    
 
     const Eigen::Index dim = psi0.size();    
 
@@ -538,7 +535,7 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
                 // expand_with_plus_state(psi_data, psi, n_anc); 
                 
                 if (theta_G!=0){
-                    prepare_state_again_for_circuit_level(psi,  d,  phase_mask, theta_G);
+                    prepare_state_again_for_circuit_level(psi,  d, phase_mask, all_swaps,  theta_G);
                 }
                 else{
                     prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
@@ -759,7 +756,7 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
                 // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 // prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
-                prepare_state_again_for_circuit_level(psi,  d,  phase_mask, theta_G);
+                prepare_state_again_for_circuit_level(psi,  d, phase_mask, all_swaps,  theta_G);
             
             }
             
