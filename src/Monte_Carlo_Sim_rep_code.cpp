@@ -283,6 +283,7 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
     */
     
     apply_precomputed_Rz_mask(psi, phase_mask); //Rz errors
+    int nQ = d + (d-1);
 
     ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
     std::vector<std::pair<size_t, size_t>> all_swaps;
@@ -457,13 +458,18 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
     ArrayXc ZZ_mask;
     std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
 
-    const VectorXc psi0;
-    if (theta_G!=0){
-        psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  theta_G);
-    }
-    else{
-        psi0  = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
-    }
+    // const VectorXc psi0;
+    // if (theta_G!=0){
+    //     psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  theta_G);
+    // }
+    // else{
+    //     psi0  = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
+    // }
+    const VectorXc psi0 =
+        (theta_G != 0)
+            ? prepare_pre_meas_state_for_circuit_level(d, phase_mask, theta_G)
+            : prepare_pre_meas_state(d, all_swaps, phase_mask, ZZ_mask);
+
     
 
     
