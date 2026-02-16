@@ -335,7 +335,7 @@ std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOTs_as_swap_layers(int
 }
 
 
-std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, int theta_G){
+std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, Real theta_G){
 
     int nQ = d+d-1;
     std::vector<ArrayXc> ZZ_mask_per_layer;
