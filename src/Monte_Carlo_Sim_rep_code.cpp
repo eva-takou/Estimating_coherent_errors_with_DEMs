@@ -189,7 +189,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
 }
 
 
-VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers , const std::vector<ArrayXc>& ZZ_mask_per_layer) { 
+VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>>& swap_layers , const std::vector<ArrayXc>& ZZ_mask_per_layer) { 
     /*
     Perform all unitary operations to prepare the state for the 1st QEC round (before measuring the ancilla qubits).
     
@@ -212,9 +212,10 @@ VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_m
     
 
     assert(swap_layers.size() == d-1);
+    assert(ZZ_mask_per_layer.size() == d-1);
 
     // Apply CNOTs and 2-qubit gate error one-by-one
-    ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
+    // ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
 
     for (int i=0; i<d-1; ++i){
 
@@ -267,7 +268,7 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 
 
 inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>> &swap_layers,
-                                                  std::vector<ArrayXc> ZZ_mask_per_layer){ 
+                                                  const std::vector<ArrayXc>& ZZ_mask_per_layer){ 
     /*
     Re-prepare the state for every QEC round. The input state needs to be in |\psi>_{data} \otimes |+>_{ancilla}.
     Input:
@@ -282,7 +283,7 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
     int nQ = d + (d-1);
 
     assert(swap_layers.size() == d-1);
-
+    assert(ZZ_mask_per_layer.size() == d-1);                                                    
 
     // ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
     // std::vector<std::pair<size_t, size_t>> all_swaps;
