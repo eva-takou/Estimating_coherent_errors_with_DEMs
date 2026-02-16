@@ -296,7 +296,7 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
         // control +=1;    
         // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
 
-        apply_CNOTs_from_precomputed_swaps(all_swaps[i], psi); //Apply perfect CNOTs
+        apply_CNOTs_from_precomputed_swaps({all_swaps[i]}, psi); //Apply perfect CNOTs
 
         // all_swaps.clear(); //empty all_swaps
 
