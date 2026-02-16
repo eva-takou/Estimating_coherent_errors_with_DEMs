@@ -271,7 +271,8 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 }
 
 
-inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const Real theta_G){ 
+inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::pair<size_t, size_t>> &all_swaps,
+                                                  const std::vector<ArrayXc>& all_ZZ_masks){ 
     /*
     Re-prepare the state for every QEC round. The input state needs to be in |\psi>_{data} \otimes |+>_{ancilla}.
     Input:
@@ -286,18 +287,18 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
     int nQ = d + (d-1);
 
     ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
-    std::vector<std::pair<size_t, size_t>> all_swaps;
-    int control=d;
+    // std::vector<std::pair<size_t, size_t>> all_swaps;
+    // int control=d;
     for (int i=0; i<d-1; ++i){
 
-        std::vector<int> targets{ i, i + 1 };
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
-        control +=1;    
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
+        // std::vector<int> targets{ i, i + 1 };
+        // std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
+        // control +=1;    
+        // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
 
-        apply_CNOTs_from_precomputed_swaps(all_swaps, psi); //Apply perfect CNOTs
+        apply_CNOTs_from_precomputed_swaps(all_swaps[i], psi); //Apply perfect CNOTs
 
-        all_swaps.clear(); //empty all_swaps
+        // all_swaps.clear(); //empty all_swaps
 
         //Now compute the ZZ error mask
         ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
