@@ -351,7 +351,7 @@ std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, Real theta_G){
 
         ZZ_mask_per_layer.push_back(ZZ_mask);
 
-        ZZ_mask.setOnes();  //re-declare this
+        ZZ_mask = VectorXc::Ones(1 << nQ);    
 
     }    
 
