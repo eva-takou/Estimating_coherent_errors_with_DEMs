@@ -189,7 +189,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
 }
 
 
-VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers , const Real theta_G) { 
+VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers , const std::vector<ArrayXc>& ZZ_mask_per_layer) { 
     /*
     Perform all unitary operations to prepare the state for the 1st QEC round (before measuring the ancilla qubits).
     
@@ -221,14 +221,14 @@ VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_m
         apply_CNOTs_from_precomputed_swaps(swap_layers[i], psi); //Apply perfect CNOTs
 
         //Now compute the ZZ error mask
-        ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
-        ZZ_mask      *= temp1;
-        temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
-        ZZ_mask      *= temp1;
+        // ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
+        // ZZ_mask      *= temp1;
+        // temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
+        // ZZ_mask      *= temp1;
 
-        apply_precomputed_ZZ_mask(psi, ZZ_mask); 
+        apply_precomputed_ZZ_mask(psi, ZZ_mask_per_layer[i]); 
 
-        ZZ_mask = VectorXc::Ones(1 << nQ);  //re-declare this
+        // ZZ_mask = VectorXc::Ones(1 << nQ);  //re-declare this
 
 
     }    
@@ -267,7 +267,7 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 
 
 inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>> &swap_layers,
-                                                  const Real theta_G){ 
+                                                  std::vector<ArrayXc> ZZ_mask_per_layer){ 
     /*
     Re-prepare the state for every QEC round. The input state needs to be in |\psi>_{data} \otimes |+>_{ancilla}.
     Input:
@@ -284,29 +284,22 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
     assert(swap_layers.size() == d-1);
 
 
-    ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
+    // ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
     // std::vector<std::pair<size_t, size_t>> all_swaps;
     // int control=d;
     for (int i=0; i<d-1; ++i){
 
-        // std::vector<int> targets{ i, i + 1 };
-        // std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
-        // control +=1;    
-        // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
-
         apply_CNOTs_from_precomputed_swaps(swap_layers[i], psi); //Apply perfect CNOTs
 
-        // all_swaps.clear(); //empty all_swaps
-
         //Now compute the ZZ error mask
-        ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
-        ZZ_mask      *= temp1;
-        temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
-        ZZ_mask      *= temp1;
+        // ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
+        // ZZ_mask      *= temp1;
+        // temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
+        // ZZ_mask      *= temp1;
 
-        apply_precomputed_ZZ_mask(psi, ZZ_mask); 
+        apply_precomputed_ZZ_mask(psi, ZZ_mask_per_layer[i]); 
 
-        ZZ_mask = VectorXc::Ones(1 << nQ);  //re-declare this
+        // ZZ_mask = VectorXc::Ones(1 << nQ);  //re-declare this
 
 
     }       
@@ -340,6 +333,31 @@ std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOTs_as_swap_layers(int
     
 }
 
+
+std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, int theta_G){
+
+    int nQ = d+d-1;
+    std::vector<ArrayXc> ZZ_mask_per_layer;
+    ZZ_mask_per_layer.reserve(d-1);
+    ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
+
+    for (int i=0; i<d-1; ++i){
+
+        ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
+        ZZ_mask      *= temp1;
+        temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
+        ZZ_mask      *= temp1;
+
+        ZZ_mask_per_layer.push_back(ZZ_mask);
+
+        ZZ_mask.setOnes();  //re-declare this
+
+    }    
+
+
+    return ZZ_mask_per_layer;
+    
+}
 
 inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
                                                                                                         Real theta_data, Real theta_anc, Real theta_G){
@@ -482,11 +500,11 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
 
 
     std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers=get_CNOTs_as_swap_layers(d);
-
+    std::vector<ArrayXc> ZZ_mask_per_layer = get_ZZ_masks_as_layers(d,theta_G);
 
     const VectorXc psi0 =
         (theta_G != 0)
-            ? prepare_pre_meas_state_for_circuit_level( d,   phase_mask,  swap_layers ,  theta_G)
+            ? prepare_pre_meas_state_for_circuit_level( d,   phase_mask,  swap_layers ,  ZZ_mask_per_layer)
             : prepare_pre_meas_state(d, all_swaps, phase_mask, ZZ_mask);
 
 
@@ -553,7 +571,7 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
                 // expand_with_plus_state(psi_data, psi, n_anc); 
                 
                 if (theta_G!=0){
-                    prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  theta_G);
+                    prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  ZZ_mask_per_layer);
                 }
                 else{
                     prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
@@ -709,9 +727,10 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
 
     
     std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers =  get_CNOTs_as_swap_layers(d);
+    std::vector<ArrayXc> ZZ_mask_per_layer = get_ZZ_masks_as_layers( d,  theta_G);
 
     // const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
-    const VectorXc psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  swap_layers, theta_G);
+    const VectorXc psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  swap_layers, ZZ_mask_per_layer);
     const Eigen::Index dim = psi0.size();    
 
     std::vector<std::pair<int, int>> index_map = precompute_kept_index_map_for_ptrace_of_ancilla(n_anc, d);
@@ -775,7 +794,7 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
                 // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 // prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
-                prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  theta_G);
+                prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  ZZ_mask_per_layer);
             
             }
             
