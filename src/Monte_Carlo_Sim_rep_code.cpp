@@ -189,7 +189,7 @@ VectorXc prepare_pre_meas_state(int d, const std::vector<std::pair<size_t, size_
 }
 
 
-VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, const Real theta_G) { 
+VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_mask, std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers , const Real theta_G) { 
     /*
     Perform all unitary operations to prepare the state for the 1st QEC round (before measuring the ancilla qubits).
     
@@ -210,20 +210,15 @@ VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_m
     
     apply_precomputed_Rz_mask(psi, phase_mask); //Apply noise e^{-i\theta_j Z_j}
     
+
+    
+
     // Apply CNOTs and 2-qubit gate error one-by-one
     ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
-    std::vector<std::pair<size_t, size_t>> all_swaps;
-    int control=d;
+
     for (int i=0; i<d-1; ++i){
 
-        std::vector<int> targets{ i, i + 1 };
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
-        control +=1;    
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
-
-        apply_CNOTs_from_precomputed_swaps(all_swaps, psi); //Apply perfect CNOTs
-
-        all_swaps.clear(); //empty the all_swaps
+        apply_CNOTs_from_precomputed_swaps(swap_layers[i], psi); //Apply perfect CNOTs
 
         //Now compute the ZZ error mask
         ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
@@ -271,7 +266,7 @@ inline void prepare_state_again(VectorXc &psi, int d, const std::vector<std::pai
 }
 
 
-inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::pair<size_t, size_t>> &all_swaps,
+inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>> &swap_layers,
                                                   const Real theta_G){ 
     /*
     Re-prepare the state for every QEC round. The input state needs to be in |\psi>_{data} \otimes |+>_{ancilla}.
@@ -296,7 +291,7 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
         // control +=1;    
         // all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
 
-        apply_CNOTs_from_precomputed_swaps({all_swaps[i]}, psi); //Apply perfect CNOTs
+        apply_CNOTs_from_precomputed_swaps(swap_layers[i], psi); //Apply perfect CNOTs
 
         // all_swaps.clear(); //empty all_swaps
 
@@ -319,6 +314,30 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
 
 
 }
+
+//Get the d-1 swap layers for each check
+std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOTs_as_swap_layers(int d){
+
+
+    int nQ = d + (d-1);
+    std::vector<std::vector<std::pair<size_t, size_t>>> all_swaps;
+    int control=d;
+     
+    for (int i=0; i<d-1; ++i){
+
+        std::vector<int> targets{ i, i + 1 };
+        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
+        control +=1;    
+        
+        all_swaps[i] = swaps;
+
+
+    }
+
+    return all_swaps;
+    
+}
+
 
 inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
                                                                                                         Real theta_data, Real theta_anc, Real theta_G){
@@ -459,16 +478,13 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
     ArrayXc ZZ_mask;
     std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
 
-    // const VectorXc psi0;
-    // if (theta_G!=0){
-    //     psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  theta_G);
-    // }
-    // else{
-    //     psi0  = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
-    // }
+
+    std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers=get_CNOTs_as_swap_layers(d);
+
+
     const VectorXc psi0 =
         (theta_G != 0)
-            ? prepare_pre_meas_state_for_circuit_level(d, phase_mask, theta_G)
+            ? prepare_pre_meas_state_for_circuit_level( d,   phase_mask,  swap_layers ,  theta_G)
             : prepare_pre_meas_state(d, all_swaps, phase_mask, ZZ_mask);
 
 
@@ -535,7 +551,7 @@ Real get_LER_from_estimated_DEM(int d, int rds, int ITERS, Real theta_data, Real
                 // expand_with_plus_state(psi_data, psi, n_anc); 
                 
                 if (theta_G!=0){
-                    prepare_state_again_for_circuit_level(psi,  d, phase_mask, all_swaps,  theta_G);
+                    prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  theta_G);
                 }
                 else{
                     prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
@@ -689,7 +705,8 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
     ArrayXc ZZ_mask;
     std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
 
- 
+    
+    std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers =  get_CNOTs_as_swap_layers(d);
 
     // const VectorXc psi0    = prepare_pre_meas_state(d,  all_swaps, phase_mask, ZZ_mask);
     const VectorXc psi0  = prepare_pre_meas_state_for_circuit_level( d,  phase_mask,  theta_G);
@@ -756,7 +773,7 @@ Real get_LER_from_uniform_DEM_circuit_level(int d, int rds, int ITERS, Real thet
                 // expand_with_plus_state(psi_data, psi, n_anc); 
 
                 // prepare_state_again(psi, d,  all_swaps, phase_mask, ZZ_mask); 
-                prepare_state_again_for_circuit_level(psi,  d, phase_mask, all_swaps,  theta_G);
+                prepare_state_again_for_circuit_level(psi,  d, phase_mask, swap_layers,  theta_G);
             
             }
             
