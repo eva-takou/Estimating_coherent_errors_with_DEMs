@@ -211,7 +211,7 @@ VectorXc prepare_pre_meas_state_for_circuit_level(int d,  const ArrayXc& phase_m
     apply_precomputed_Rz_mask(psi, phase_mask); //Apply noise e^{-i\theta_j Z_j}
     
 
-    
+    assert(swap_layers.size() == d-1);
 
     // Apply CNOTs and 2-qubit gate error one-by-one
     ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
@@ -281,6 +281,9 @@ inline void prepare_state_again_for_circuit_level(VectorXc &psi, int d, const Ar
     apply_precomputed_Rz_mask(psi, phase_mask); //Rz errors
     int nQ = d + (d-1);
 
+    assert(swap_layers.size() == d-1);
+
+
     ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
     // std::vector<std::pair<size_t, size_t>> all_swaps;
     // int control=d;
@@ -320,19 +323,18 @@ std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOTs_as_swap_layers(int
 
 
     int nQ = d + (d-1);
+
     std::vector<std::vector<std::pair<size_t, size_t>>> all_swaps;
-    int control=d;
-     
-    for (int i=0; i<d-1; ++i){
 
+    int control = d;
+    for (int i = 0; i < d-1; ++i) {
         std::vector<int> targets{ i, i + 1 };
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
-        control +=1;    
-        
-        all_swaps[i] = swaps;
+        auto swaps = precompute_CNOT_swaps(control, targets, nQ);
+        control += 1;
 
-
+        all_swaps.push_back(swaps);
     }
+
 
     return all_swaps;
     
