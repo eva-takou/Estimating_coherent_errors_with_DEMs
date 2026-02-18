@@ -75,5 +75,24 @@ inline void apply_stochastic_X_on_qubits(VectorXc& psi, const std::vector<int>& 
 }
 
 
+inline void apply_stochastic_Y_on_qubits(VectorXc& psi, const std::vector<int>& qubits, const std::vector<Real>& prob_Y, int nQ){
+    
+    std::vector<int> qubits_to_apply_Y;
+    qubits_to_apply_Y.reserve(qubits.size());
+    std::uniform_real_distribution<double> dist(0.0, 1.0);    
+
+    for (size_t q = 0; q < qubits.size(); ++q) {
+
+        if (dist(rng) < prob_Y[q]) {
+            qubits_to_apply_Y.push_back(qubits[q]);
+        }
+    }
+
+    apply_Ry_on_qubits_inplace(psi,qubits_to_apply_Y, PI/2);
+
+
+}
+
+
 
 
