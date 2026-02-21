@@ -7,8 +7,6 @@
 #include <cmath>
 
 #include "PrecisionOfTypes.h"
-#include "constants.h"
-#include "Unitary_Ops.h"
 
 #include <set>
 #include <random>
