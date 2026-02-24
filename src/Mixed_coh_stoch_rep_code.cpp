@@ -202,7 +202,7 @@ inline ArrayXc prepare_reusable_structures(int d, int nQ, int n_anc, const std::
 }
 
 
-VectorXc prepare_pre_meas_state_for_circuit_level_mixed_stoch_coh(int d, const std::vector<int>& all_qubits, const Real prob_depol1, const Real prob_depol2,  const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>>& swap_layers , const std::vector<ArrayXc>& ZZ_mask_per_layer) { 
+inline VectorXc prepare_pre_meas_state_for_circuit_level_mixed_stoch_coh(int d, const std::vector<int>& all_qubits, const Real prob_depol1, const Real prob_depol2,  const ArrayXc& phase_mask, const std::vector<std::vector<std::pair<size_t, size_t>>>& swap_layers , const std::vector<ArrayXc>& ZZ_mask_per_layer) { 
     /*
     
     Input: 
@@ -284,7 +284,7 @@ inline void prepare_state_again_for_circuit_level_mixed_stoch_coh(VectorXc &psi,
 }
 
 
-std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_level_mixed_coh_stoc_rep_code(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout, Real prob_depol1, Real prob_depol2,  bool Reset_ancilla){
+inline std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_level_mixed_coh_stoc_rep_code(int d, int rds, int ITERS, Real theta_data, Real theta_anc, Real theta_G, Real q_readout, Real prob_depol1, Real prob_depol2,  bool Reset_ancilla){
     
     /*
     Get the detection events and observable flips for a mixed stoch-coherent noise model for a repetition code memory.

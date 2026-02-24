@@ -6,8 +6,8 @@
 #include "pcg_random.hpp"
 #include "PrecisionOfTypes.h"
 
-std::random_device rd;  // Seed
-pcg32 rand_gen;
+extern std::random_device rd;  // Seed
+extern pcg32 rand_gen;
 
 inline void cumSum_from_state_vector(const VectorXc& psi, std::vector<Real>& cdf_buffer) {
 
@@ -23,7 +23,7 @@ inline void cumSum_from_state_vector(const VectorXc& psi, std::vector<Real>& cdf
 }
 }
 
-std::vector<Real> cumSum(const std::vector<Real>& input) {
+inline std::vector<Real> cumSum(const std::vector<Real>& input) {
     
     std::vector<Real> cumsum(input.size()); // Output vector
     std::partial_sum(input.begin(), input.end(), cumsum.begin());
@@ -37,7 +37,7 @@ inline void cumSum_inplace(const std::vector<Real>& input, std::vector<Real>& ou
 }
 
 
-void print_vector(const std::vector<Real>& vec, const std::string& name) {
+inline void print_vector(const std::vector<Real>& vec, const std::string& name) {
     std::cout << name << ":\n";
     for (size_t i = 0; i < vec.size(); ++i) {
         std::cout << "  [" << i << "] = " << vec[i] << "\n";
@@ -45,7 +45,7 @@ void print_vector(const std::vector<Real>& vec, const std::string& name) {
 }
 
 
-void print_vector_uint8(const std::vector<uint8_t>& vec, const std::string& name) {
+inline void print_vector_uint8(const std::vector<uint8_t>& vec, const std::string& name) {
     std::cout << name << ":\n";
     for (size_t i = 0; i < vec.size(); ++i) {
         std::cout << "  [" << i << "] = " << static_cast<int>(vec[i]) << "\n";
@@ -108,7 +108,7 @@ inline bool logical_XL_flipped(const std::vector<uint8_t>& outcome,
 }
 
 
-std::vector<std::vector<int>> Hx_rep_code(int d){
+inline std::vector<std::vector<int>> Hx_rep_code(int d){
     
     std::vector<std::vector<int>> Hx(d - 1, std::vector<int>(d, 0));
 
