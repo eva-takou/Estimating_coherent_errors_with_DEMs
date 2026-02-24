@@ -12,6 +12,7 @@
 #include "Measurements.h"
 #include "Kets.h"
 #include "Unitary_Ops.h"
+#include "Stochastic_Ops.h"
 #include "call_to_pymatching.h"
 #include "utils.h"
 #include <cstdint>
@@ -45,6 +46,7 @@
 
 
 #include "PrecisionOfTypes.h"
+
 #include "constants.h"
 
 using std::vector;
@@ -170,7 +172,7 @@ inline std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, Real theta_G){
 }
 
 inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
-                                                                                                        Real theta_data, Real theta_anc, Real theta_G){
+                                                                                                        Real theta_data, Real theta_anc){
 
 
     /*
@@ -186,24 +188,9 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
     theta_G: error angle for e^{i \theta ZZ} after CNOTs
     
     Output:
-    all_swaps: vector of pairs of indices to be swapped
     phase_mask: phase mask for e^{-i\theta Z} errors
-    ZZ_mask: phase mask for e^{i \theta ZZ} CNOT errors
-    
     */
 
-    //Precompute indices for SWAPs that implement CNOTs
-    
-    std::vector<std::pair<size_t, size_t>> all_swaps;
-    int control=d;
-    for (int k1=0; k1<d-1; ++k1){
-
-        std::vector<int> targets{ k1, k1 + 1 };
-        std::vector<std::pair<size_t, size_t>> swaps = precompute_CNOT_swaps( control, targets,  nQ);
-        control +=1;    
-        all_swaps.insert(all_swaps.end(), swaps.begin(), swaps.end()); //keep it a flattened vector
-
-    }    
 
 
     std::vector<Real> thetas(d, theta_data);        //Same \theta angle for all data qubits (d in total)
@@ -211,16 +198,6 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
     
     ArrayXc phase_mask = precompute_Rz_phase_mask(nQ, idxs_all,  thetas);
 
-    ArrayXc ZZ_mask = VectorXc::Ones(1 << nQ);    
-
-    for (int i = 0; i < n_anc; ++i) {
-
-        ArrayXc temp1 = compute_ZZ_phase_mask(nQ, d + i, i, theta_G);
-        ZZ_mask      *= temp1;
-        temp1         = compute_ZZ_phase_mask(nQ, d + i, i + 1, theta_G);
-        ZZ_mask      *= temp1;
-
-    }    
 
     return std::make_tuple(all_swaps, phase_mask, ZZ_mask);
 }
@@ -332,7 +309,6 @@ std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_l
     const int n_anc  = d - 1;
     const int n_data = d;    
     const int nQ     = n_data+n_anc;
-    const Real prob_depol2 = 0.0;
 
 
     bool include_stab_reconstruction = true;    
