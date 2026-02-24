@@ -171,7 +171,7 @@ inline std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, Real theta_G){
     
 }
 
-inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
+inline ArrayXc prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
                                                                                                         Real theta_data, Real theta_anc){
 
 
@@ -199,7 +199,7 @@ inline std::tuple<std::vector<std::pair<size_t, size_t>>, ArrayXc, ArrayXc> prep
     ArrayXc phase_mask = precompute_Rz_phase_mask(nQ, idxs_all,  thetas);
 
 
-    return std::make_tuple(all_swaps, phase_mask, ZZ_mask);
+    return phase_mask;
 }
 
 
@@ -355,10 +355,9 @@ std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_l
     ancilla_bitstring.reserve(n_anc * rds_effective); 
 
     
-    std::vector<std::pair<size_t, size_t>> all_swaps;
+    
     ArrayXc phase_mask;
-    ArrayXc ZZ_mask;
-    std::tie(all_swaps, phase_mask,ZZ_mask) = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
+    phase_mask = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
 
     
     std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers =  get_CNOTs_as_swap_layers(d);

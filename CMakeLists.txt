@@ -37,7 +37,8 @@ pybind11_add_module(sample_repetition_code
                     src/Kets.cpp 
                     src/call_to_pymatching.cpp 
                     src/estimation_functions_rep_code.cpp 
-                    src/Measurements.cpp )
+                    src/Measurements.cpp 
+                    src/Mixed_coh_stoch_rep_code.cpp)
 
 pybind11_add_module(sample_surface_code 
                     src/bindings_surf_code.cpp 
