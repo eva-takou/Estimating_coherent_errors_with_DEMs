@@ -171,8 +171,7 @@ inline std::vector<ArrayXc> get_ZZ_masks_as_layers(int d, Real theta_G){
     
 }
 
-inline ArrayXc prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, 
-                                                                                                        Real theta_data, Real theta_anc){
+inline ArrayXc prepare_reusable_structures(int d, int nQ, int n_anc, const std::vector<int>& idxs_all, Real theta_data, Real theta_anc){
 
 
     /*
@@ -357,7 +356,7 @@ std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_l
     
     
     ArrayXc phase_mask;
-    phase_mask = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc,  theta_G);
+    phase_mask = prepare_reusable_structures( d,  nQ,  n_anc, idxs_all, theta_data,  theta_anc);
 
     
     std::vector<std::vector<std::pair<size_t, size_t>>> swap_layers =  get_CNOTs_as_swap_layers(d);
