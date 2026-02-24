@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "Monte_Carlo_Sim_rep_code.h"  
+#include "Mixed_coh_stoch_rep_code.h"
 
 
 namespace py = pybind11;
@@ -55,6 +56,21 @@ PYBIND11_MODULE(sample_repetition_code, m) {
           py::arg("q_readout"),
           py::arg("Reset_ancilla"),
           "Run code-capacity + classical readout errors memory QEC sim and return LER based on logical angle");                   
+
+
+      m.def("sample_circ_level_mixed_coh_stoc_rep_code",
+          &sample_circ_level_mixed_coh_stoc_rep_code,
+          py::arg("d"),
+          py::arg("rds"),
+          py::arg("ITERS"),
+          py::arg("theta_data"),
+          py::arg("theta_anc"),
+          py::arg("theta_G"),
+          py::arg("q_readout"),
+          py::arg("prob_depol1"),
+          py::arg("prob_depol2"),
+          py::arg("Reset_ancilla"),
+          "Sample detection events and obs flips for mixed coherent-stochastic noise on repetition code memory.");         
           
 
 
