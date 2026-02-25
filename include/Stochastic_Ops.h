@@ -207,33 +207,25 @@ inline void apply_two_qubit_pauli(VectorXc& psi, int q1, int q2, char P1, char P
 }
 
 
-inline void apply_twoQ_depol_on_qubits(VectorXc& psi, const std::vector<int> & qubits1, const std::vector<int>& qubits2, const Real prob_depol2, int nQ){
+inline void apply_twoQ_depol_on_qubits(VectorXc& psi, 
+                                       const std::vector<int>& qubits1,
+                                       const std::vector<int>& qubits2, 
+                                       Real prob_depol2, int nQ) {
+    static const std::vector<std::pair<char,char>> pauli_combs = {
+        {'X','I'},{'Y','I'},{'Z','I'},
+        {'I','X'},{'I','Y'},{'I','Z'},
+        {'X','X'},{'X','Y'},{'X','Z'},
+        {'Y','X'},{'Y','Y'},{'Y','Z'},
+        {'Z','X'},{'Z','Y'},{'Z','Z'}
+    };
 
-
-    static const std::vector<std::pair<char,char>> pauli_combs = {{'X','I'},{'Y','I'},{'Z','I'},
-                                                                  {'I','X'},{'I','Y'},{'I','Z'},
-                                                                  {'X','X'},{'X','Y'},{'X','Z'},
-                                                                  {'Y','X'},{'Y','Y'},{'Y','Z'},
-                                                                  {'Z','X'},{'Z','Y'},{'Z','Z'}};    
-
-    assert(prob_depol2<=15.0/16.0);
-    Real p = 0.5 - 0.5*std::pow(1.0 - 16.0 / 15.0 * prob_depol2, 0.125) ;
-
-    std::uniform_real_distribution<double> dist(0.0, 1.0);    
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::uniform_int_distribution<size_t> pick(0, pauli_combs.size()-1);
 
     for (size_t k=0; k<qubits1.size(); ++k){
-
-        if (dist(rng)<p){
-
-            for (size_t l=0; l<pauli_combs.size(); ++l){
-                
-                auto PP = pauli_combs[l];
-                apply_two_qubit_pauli(psi, qubits1[k], qubits2[k], PP.first, PP.second, nQ);
-
-            }
-            
+        if (dist(rng) < prob_depol2) {
+            auto PP = pauli_combs[pick(rng)]; // pick a two-qubit Pauli randomly
+            apply_two_qubit_pauli(psi, qubits1[k], qubits2[k], PP.first, PP.second, nQ);
         }
-
     }
-
 }
