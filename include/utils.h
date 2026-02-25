@@ -6,8 +6,10 @@
 #include "pcg_random.hpp"
 #include "PrecisionOfTypes.h"
 
-extern std::random_device rd;  // Seed
-extern pcg32 rand_gen;
+// extern std::random_device rd;  // Seed
+// extern pcg32 rand_gen;
+inline thread_local pcg32 rand_gen(std::random_device{}());
+
 
 inline void cumSum_from_state_vector(const VectorXc& psi, std::vector<Real>& cdf_buffer) {
 
