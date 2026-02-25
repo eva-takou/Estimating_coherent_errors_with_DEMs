@@ -447,7 +447,7 @@ std::tuple<std::vector<std::vector<uint8_t>>,std::vector<uint8_t>> sample_circ_l
                 total_xor ^= v;
             }            
 
-            obs_flips.push_back( total_xor); //Logical can be defined on all the qubits
+            obs_flips[iter]= total_xor; //Logical can be defined on all the qubits
         }
 
         form_defects(ancilla_bitstring,  n_anc, rds, q_readout, Reset_ancilla,include_stab_reconstruction);
