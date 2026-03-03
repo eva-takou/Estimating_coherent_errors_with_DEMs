@@ -235,7 +235,14 @@ def estimate_bd_edges(detection_events,vi_mean,n_stabs,rds,p_space,p_time,p_diag
             DENOM *= 1-2*p_diag[("D"+str(indx2),"D"+str(indx1))]
         except KeyError:
             1
-        p_bd[("D"+str(indx1))] = 1/2 + (vi-1/2)/DENOM 
+
+        p               = 1/2+(vi-1/2)/DENOM 
+        lower_order_key = ("D"+str(indx1),)
+        p = redefine_lowest_order_prob(lower_order_key,p,pijk)
+        p = redefine_lowest_order_prob(lower_order_key,p,pijkl)
+        
+        p_bd[("D"+str(indx1))] = p
+
 
 
 
@@ -270,8 +277,12 @@ def estimate_bd_edges(detection_events,vi_mean,n_stabs,rds,p_space,p_time,p_diag
         except KeyError:
             1
         
-        p_bd[("D"+str(indx1))] = 1/2 + (vi-1/2)/DENOM 
-
+        p               = 1/2+(vi-1/2)/DENOM 
+        lower_order_key = ("D"+str(indx1),)
+        p = redefine_lowest_order_prob(lower_order_key,p,pijk)
+        p = redefine_lowest_order_prob(lower_order_key,p,pijkl)
+        
+        p_bd[("D"+str(indx1))] = p
 
     return p_bd
 
