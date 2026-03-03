@@ -24,26 +24,6 @@ matplotlib.rcParams.update({'font.size': 17})
 plt.rcParams["font.family"] = "Microsoft Sans Serif" 
 
 
-def process_single_run_uniform(d,theta,prob_depol1,prob_depol2,ITERS):
-    '''
-    Get the logical error rate if all coherent error angles are theta for data, ancilla and gate errors.
-    The decoding graph is assumed to be uniform.
-    '''
-    rds        = d
-    theta_data = theta
-    theta_anc  = theta 
-    theta_G    = -theta
-    Reset_ancilla = 1
-    q_readout   = 0
-
-    
-    det_events,obs_flips = sample_repetition_code.sample_circ_level_mixed_coh_stoc_rep_code(d, \
-            rds,  ITERS,  theta_data,  theta_anc,  theta_G,  q_readout,\
-            prob_depol1,  prob_depol2,   Reset_ancilla)
-    
-    return det_events,obs_flips
-
-
 def is_subset(lower_order_key,higher_order_key):
 
     ints_lower_order  = [int(d[1:]) for d in lower_order_key]
