@@ -309,8 +309,8 @@ std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOT_swaps_for_surface_c
 
     }
 
-    std::vector<int> controls2{X[1],X[2],X[3],1,5,7};
-    std::vector<int> targets2{4,6,8,Z[1],Z[2],Z[3]};
+    std::vector<int> controls2{X[1],X[2],X[3],1,3,7};
+    std::vector<int> targets2{4,6,8,Z[0],Z[1],Z[2]};
 
     // controls_2nd = [X1, X2, X3, 1, 5, 7 ]    
     // targets_2nd = [4, 6, 8, Z1, Z2, Z3]
@@ -323,8 +323,8 @@ std::vector<std::vector<std::pair<size_t, size_t>>> get_CNOT_swaps_for_surface_c
     }    
 
 
-    std::vector<int> controls3{X[0],X[1],X[2],1,3,7};
-    std::vector<int> targets3{0,2,4,Z[0],Z[1],Z[2]};
+    std::vector<int> controls3{X[0],X[1],X[2],1,5,7};
+    std::vector<int> targets3{0,2,4,Z[1],Z[2],Z[3]};
 
     // controls_3rd = [X0, X1, X2, 1, 3, 7]    
     // targets_3rd = [0, 2, 4, Z0, Z1, Z2]
@@ -669,7 +669,7 @@ inline std::tuple< std::vector<std::vector<std::pair<size_t, size_t>>> , ArrayXc
     int n_anc  = (n_data-1);
     int nQ     = n_data+n_anc;
 
-    std::vector<std::pair<size_t, size_t>> all_swaps = get_CNOT_swaps_for_surface_code();
+    // std::vector<std::pair<size_t, size_t>> all_swaps = get_CNOT_swaps_for_surface_code();
 
     
     std::vector<Real> thetas(n_data, theta_data);   //Same \theta angle for all data qubits
