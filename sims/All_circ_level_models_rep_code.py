@@ -18,10 +18,30 @@ from joblib import Parallel, delayed
 from python_src.estimation_functions import *
 import stim 
 from pymatching import Matching
-
+import json 
 
 matplotlib.rcParams.update({'font.size': 17})
 plt.rcParams["font.family"] = "Microsoft Sans Serif" 
+
+
+def process_single_run_uniform(d,theta,prob_depol1,prob_depol2,ITERS):
+    '''
+    Get the logical error rate if all coherent error angles are theta for data, ancilla and gate errors.
+    The decoding graph is assumed to be uniform.
+    '''
+    rds        = d
+    theta_data = theta
+    theta_anc  = theta 
+    theta_G    = -theta
+    Reset_ancilla = 1
+    q_readout   = 0
+
+    
+    det_events,obs_flips = sample_repetition_code.sample_circ_level_mixed_coh_stoc_rep_code(d, \
+            rds,  ITERS,  theta_data,  theta_anc,  theta_G,  q_readout,\
+            prob_depol1,  prob_depol2,   Reset_ancilla)
+    
+    return det_events,obs_flips
 
 
 def is_subset(lower_order_key,higher_order_key):
@@ -39,16 +59,23 @@ def redefine_lowest_order_prob(lower_order_key, lower_order_prob,higher_order_di
 
     updated_prob = lower_order_prob
 
+    
     for higher_order_key,val in higher_order_dict.items():
 
         if is_subset(lower_order_key,higher_order_key):
 
+            if val<0:
+                raise Exception("Higher order event has negative value.")
+
             updated_prob = (updated_prob - val) / (1-2*val)
+
 
             if updated_prob<0:
                 updated_prob = 0
 
             return updated_prob
+    
+    
 
     return updated_prob
 
@@ -236,14 +263,13 @@ def estimate_bd_edges(detection_events,vi_mean,n_stabs,rds,p_space,p_time,p_diag
         except KeyError:
             1
 
+
         p               = 1/2+(vi-1/2)/DENOM 
         lower_order_key = ("D"+str(indx1),)
         p = redefine_lowest_order_prob(lower_order_key,p,pijk)
         p = redefine_lowest_order_prob(lower_order_key,p,pijkl)
         
         p_bd[("D"+str(indx1))] = p
-
-
 
 
     anc1 = n_stabs-1 
@@ -277,12 +303,17 @@ def estimate_bd_edges(detection_events,vi_mean,n_stabs,rds,p_space,p_time,p_diag
         except KeyError:
             1
         
+
+        
         p               = 1/2+(vi-1/2)/DENOM 
+
         lower_order_key = ("D"+str(indx1),)
         p = redefine_lowest_order_prob(lower_order_key,p,pijk)
         p = redefine_lowest_order_prob(lower_order_key,p,pijkl)
-        
+
         p_bd[("D"+str(indx1))] = p
+        
+
 
     return p_bd
 
@@ -439,12 +470,15 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
     ds = [3,5,7,9]
 
     thetas2 = np.array([0.03*np.pi,0.04*np.pi,0.05*np.pi,0.06*np.pi])    
+    # thetas2 = np.array([0.043*np.pi, 0.047*np.pi, 0.05*np.pi, 0.052*np.pi, 0.054*np.pi  ])
+    
     thetas1 = thetas2
 
     ps1 = [100*np.sin(th)**2 for th in thetas1]
     ps2 = [100*np.sin(th)**2 for th in thetas2]
 
     colors = ['tab:blue','tab:orange','tab:green','tab:red','tab:purple']
+    fig, ax = plt.subplots()
     
     #------------------ Mixed stochastic - coherent ---------------------
     tasks = [
@@ -466,6 +500,7 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
     # Organize results
     results_dict = {d: {"LER": [], "ERR": []} for d in ds}
 
+
     for d, theta, num_errors, err_bar in results:
         results_dict[d]["LER"].append(num_errors)
         results_dict[d]["ERR"].append(err_bar)
@@ -482,7 +517,11 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
         )
         cnt+=1
 
-    #-------------Now compare vs the purely stochastic
+    with open(f'LER_circ_level_mixed_N_{ITERS}.json', 'w') as file:
+        json.dump(results_dict, file)   
+
+
+    # -------------Now compare vs the purely stochastic
     tasks = [
         (d, theta)
         for d in ds
@@ -502,6 +541,7 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
     for d, theta, num_errors, err_bar in results:
         results_dict[d]["LER"].append(num_errors)
         results_dict[d]["ERR"].append(err_bar)
+
     
     cnt=0
     for d in ds:
@@ -512,6 +552,10 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
             marker='s',color=colors[cnt],linestyle='-.'
         )
         cnt+=1
+
+    with open(f'LER_circ_level_stoch_N_{ITERS}.json', 'w') as file:
+        json.dump(results_dict, file) 
+
 
     #-------------Compare with the fully coherent model
     tasks = [
@@ -530,6 +574,7 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
 
     results_dict = {d: {"LER": [], "ERR": []} for d in ds}
 
+
     for d, theta, num_errors, err_bar in results:
         results_dict[d]["LER"].append(num_errors)
         results_dict[d]["ERR"].append(err_bar)
@@ -544,13 +589,21 @@ def get_LER_circuit_level_models(ITERS, include_higher_order, n_jobs=-1):
         )
         cnt+=1
 
+    with open(f'LER_circ_level_coh_N_{ITERS}.json', 'w') as file:
+        json.dump(results_dict, file) 
 
 
     plt.ylabel('$P_L$')
     plt.xlabel("Physical error rate (%)")
     plt.yscale('log')
     plt.legend(fontsize=13,frameon=False)
+
+
+    fig.savefig(f"LER_circ_level_all_iters_{ITERS}.pdf",bbox_inches='tight')
+
+
     plt.show()
+
 
     return results_dict
 
