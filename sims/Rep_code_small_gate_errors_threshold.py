@@ -13,21 +13,27 @@ from joblib import Parallel, delayed
 matplotlib.rcParams.update({'font.size': 17})
 plt.rcParams["font.family"] = "Microsoft Sans Serif" 
 
-
-
-
 def process_single_run_estimated(d,theta,ITERS,theta_G):
     '''
-    Get the logical error rate if all coherent error angles are theta for data, and ancilla. The gate error
-    angle should be sufficiently smaller for the estimation to work well. Here we want to see what happens if we ignore the hyperedges.
-    The decoding graph is assumed to be the estimated one.
+    Get LER for a noise model with e^{-i\theta Z} errors on data and ancilla qubits per QEC round,
+    and small gate errors theta_G after every CNOT. Note internally the code does e^{i\theta_G ZZ}, so we need to also provide the sign.
+    The decoding graph is assumed to be the estimated one.    
+
+    Input:
+    d: distance of repetition code (X-memory)
+    theta: error angle for data and ancilla qubits (e^{-i\theta Z} errors)
+    ITERS: the number of shots for estimation + decoding 
+    theta_G: error angle for gate errors after perfect CNOTS (e^{i\theta_G ZZ} errors)
+
+    Output:
+    logical error rate
     '''
     rds        = d
     theta_data = theta
     theta_anc  = theta 
     Reset_ancilla = 1
     q_readout   = 0
-    include_higher_order = 0
+    include_higher_order = 0 #Do not include higher order corrections
     print_higher_order = 0
     
     
@@ -37,11 +43,17 @@ def process_single_run_estimated(d,theta,ITERS,theta_G):
 
 
 
-def plot_LER_phenom_level(ITERS, theta_G):
+def plot_LER_small_gate_errors(ITERS, theta_G):
 
     ds      = [3,5,7]
     
-    #This has to be adjusted for different values of \theta_G
+    #Range of thetas for data+ancilla qubits needs to be adjusted.
+    if theta_G==-0.01*np.pi:
+        thetas  = np.array([0.075*np.pi, 0.08*np.pi, 0.085*np.pi,  0.09*np.pi, 0.095*np.pi, ])   #This is for theta=-0.01*pi
+    elif theta_G==-0.018*np.pi:
+        thetas = np.array([0.07*np.pi, 0.075*np.pi, 0.08*np.pi, 0.085*np.pi, 0.09*np.pi, ])   #This is for theta=-0.025*pi
+    
+
     thetas  = np.array([ 0.07*np.pi, 0.08*np.pi, 0.09*np.pi, 0.1*np.pi ])  
 
     param_grid = [(d, theta) for d in ds for theta in thetas]
@@ -81,7 +93,7 @@ def plot_LER_phenom_level(ITERS, theta_G):
     return 
 
 
-theta_G              = 0.01*np.pi
-ITERS                = 5*10**5
-plot_LER_phenom_level(ITERS,theta_G)
+theta_G              = -0.018*np.pi #Notice this implements e^{-i\theta_G ZZ} and we need to put this sign.
+ITERS                = 5*10**4
+plot_LER_small_gate_errors(ITERS,theta_G)
 
