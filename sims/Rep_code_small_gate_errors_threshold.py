@@ -1,7 +1,7 @@
 import sys
 
 #Provide the path to the build folder
-sys.path.insert(0, "/Users/evatakou/test_c/Estimating_coherent_errors_with_DEMs/build")  # path to the .so file
+sys.path.insert(0, "/Users/evatakou/FINAL_TEST_OF_SIMS/Estimating_coherent_errors_with_DEMs/build")  # path to the .so file
 
 import sample_repetition_code
 import numpy as np
@@ -12,6 +12,7 @@ from joblib import Parallel, delayed
 
 matplotlib.rcParams.update({'font.size': 17})
 plt.rcParams["font.family"] = "Microsoft Sans Serif" 
+
 
 def process_single_run_estimated(d,theta,ITERS,theta_G):
     '''
@@ -24,9 +25,6 @@ def process_single_run_estimated(d,theta,ITERS,theta_G):
     theta: error angle for data and ancilla qubits (e^{-i\theta Z} errors)
     ITERS: the number of shots for estimation + decoding 
     theta_G: error angle for gate errors after perfect CNOTS (e^{i\theta_G ZZ} errors)
-
-    Output:
-    logical error rate
     '''
     rds        = d
     theta_data = theta
@@ -53,8 +51,6 @@ def plot_LER_small_gate_errors(ITERS, theta_G):
     elif theta_G==-0.018*np.pi:
         thetas = np.array([0.07*np.pi, 0.075*np.pi, 0.08*np.pi, 0.085*np.pi, 0.09*np.pi, ])   #This is for theta=-0.025*pi
     
-
-    thetas  = np.array([ 0.07*np.pi, 0.08*np.pi, 0.09*np.pi, 0.1*np.pi ])  
 
     param_grid = [(d, theta) for d in ds for theta in thetas]
 
@@ -94,6 +90,6 @@ def plot_LER_small_gate_errors(ITERS, theta_G):
 
 
 theta_G              = -0.018*np.pi #Notice this implements e^{-i\theta_G ZZ} and we need to put this sign.
-ITERS                = 5*10**4
+ITERS                = 10**4
 plot_LER_small_gate_errors(ITERS,theta_G)
 
