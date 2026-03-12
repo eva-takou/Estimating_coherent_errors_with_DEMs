@@ -109,7 +109,7 @@ inline Real get_prob_pij(const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic
     nstabs: number of stabilizers
 
     Output:
-    pij: probability 1/2 - \sqrt{1/2 - (<vivj>-<vivj>)/(1-2(<vi>+<vj>)+4<vivj>)}
+    pij: probability 1/2 - \sqrt{1/4 - (<vivj>-<vivj>)/(1-2(<vi>+<vj>)+4<vivj>)}
     */
 
     int indx1 = anc1 + rd1 * n_stabs;
@@ -835,6 +835,10 @@ std::vector<Real> estimate_bd_edges(const Eigen::Array<bool, Eigen::Dynamic, Eig
 
         Real temp = 0.5 + (VI-0.5)/DENOM;
 
+        //ADDED THIS SO THAT WE ALSO REDEFINE THE BDS
+        temp = redefine_lowest_order_prob({indx1}, temp, four_point_probs);
+        temp = redefine_lowest_order_prob({indx1}, temp, three_point_probs);
+
         if (temp<0){
             std::cout << "FOUND NEGATIVE for boundary 1!\n";
             temp=0.0;
@@ -921,6 +925,10 @@ std::vector<Real> estimate_bd_edges(const Eigen::Array<bool, Eigen::Dynamic, Eig
         }
 
         Real temp = 0.5 + (VI-0.5)/DENOM;
+
+        temp = redefine_lowest_order_prob({indx1}, temp, four_point_probs);
+        temp = redefine_lowest_order_prob({indx1}, temp, three_point_probs);
+
 
         if (temp<0){
             std::cout << "FOUND NEGATIVE for boundary 2!\n";
