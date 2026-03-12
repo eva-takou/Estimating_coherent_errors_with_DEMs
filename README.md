@@ -19,10 +19,11 @@ source ENVIRONMENT_NAME/bin/activate
 cd ENVIRONMENT_NAME
 ```
 
-2. Install pymatching, numpy, and joblib.
+2. Install pymatching, numpy, stim, joblib.
 ```shell
 pip install pymatching
 pip install numpy
+pip install stim
 pip install joblib
 ```
 
