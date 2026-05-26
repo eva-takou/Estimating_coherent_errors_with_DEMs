@@ -235,7 +235,7 @@ def measure_qubit_and_project(psi, nQ, qubit_index: int, basis: str, P_cache: di
     return psi, outcome            
 
 
-def sample_data_qubits_from_full_rho(psi, d: int, P_cache: dict):
+def sample_data_qubits_from_full_psi(psi, d: int, P_cache: dict):
     '''
     Measure the data qubits of repetition code and collect the outcomes.
 
@@ -370,7 +370,7 @@ def sample_detection_and_logical_flip(d: int, rds: int, basis: str, initial_stat
         psi = Had @ psi
 
     # Measure data in Z basis
-    data_outcome = sample_data_qubits_from_full_rho(psi,d,P_cache) 
+    data_outcome = sample_data_qubits_from_full_psi(psi,d,P_cache) 
 
     # Convert data outcomes to effective stabilizer
     det_events = data_to_detection_events(data_outcome) 
