@@ -777,14 +777,12 @@ def estimate_and_decode_parallel_fixed_seed(basis: str, initial_state: str, num_
     plt.legend(frameon=False,fontsize=13)
     plt.grid(True)
 
-    # fig.savefig(f"/Users/evatakou/test_mixed_model/AD_channel_phenom_rep_code_{basis}_memory_{num_shots}_rds_d_sigma_{sigma}.pdf",bbox_inches='tight')
 
     plt.show()
 
     return 
 
 
-rds           = 2
 basis         = 'Z'
 initial_state = '1'
 
